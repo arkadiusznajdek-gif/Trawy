@@ -4,7 +4,7 @@ import { clampInt, money, resolvePotContainers, uid } from "../../utils/helpers"
 import { PlantingCalculator } from "../shared/PlantingCalculator";
 
 export function emptyZestawItem(plants, potSizes) {
-  return { plantId: plants[0] ? plants[0].id : "", container: potSizes && potSizes[0] ? potSizes[0] : "P9", ilosc: 1, etykieta: "" };
+  return { plantId: plants[0] ? plants[0].id : "", container: potSizes && potSizes[0] ? potSizes[0] : "P9", ilosc: "", etykieta: "" };
 }
 
 export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, setZestawy, cennik }) {
@@ -39,7 +39,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
   const modulMbNum = Number(modulMb) > 0 ? Number(modulMb) : null;
 
   function saveZestaw() {
-    if (!nazwa.trim() || items.length === 0) return;
+    if (!nazwa.trim() || items.length === 0 || items.some((it) => clampInt(it.ilosc, 0) <= 0)) return;
     const z = {
       id: uid("z"), nazwa: nazwa.trim(), cena: Math.max(0, Number(cena) || 0),
       dlugosc_mb: modulMbNum,
@@ -82,7 +82,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
                   <select value={it.container} onChange={(e) => updateItem(idx, { container: e.target.value })}>
                     {resolvePotContainers(plantContainerSizes, potSizes, it.plantId).map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  <input type="number" inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: clampInt(e.target.value, 1) })} />
+                  <input type="number" inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                   <button type="button" className={`icon-btn ${calcOpen ? "calc-active" : ""}`} onClick={() => setCalcOpenIdx(calcOpen ? null : idx)} title="Kalkulator nasadzeń">
                     <CalcIcon size={16} />
                   </button>
@@ -103,7 +103,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
           </label>
           <div className="form-actions">
             <button className="secondary-btn" onClick={resetForm}>Anuluj</button>
-            <button className="primary-btn" disabled={!nazwa.trim()} onClick={saveZestaw}>Zapisz zestaw</button>
+            <button className="primary-btn" disabled={!nazwa.trim() || items.some((it) => clampInt(it.ilosc, 0) <= 0)} onClick={saveZestaw}>Zapisz zestaw</button>
           </div>
         </div>
       )}

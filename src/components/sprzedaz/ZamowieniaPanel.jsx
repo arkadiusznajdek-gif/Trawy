@@ -68,12 +68,12 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
     const avail = resolvePotContainers(plantContainerSizes, potSizes, plant ? plant.id : "");
     const container = avail[0] || potSizes[0] || "P9";
     const cena = plant ? (cennik[plant.id]?.[container] ?? 0) : 0;
-    return { kind: "plant", plantId: plant ? plant.id : "", container, ilosc: 1, cena };
+    return { kind: "plant", plantId: plant ? plant.id : "", container, ilosc: "", cena };
   }
   function makeZestawItemLocal() {
     const z = zestawy[0];
     if (!z) return null;
-    return { kind: "zestaw", zestawId: z.id, ilosc: 1, cena: z.cena || 0 };
+    return { kind: "zestaw", zestawId: z.id, ilosc: "", cena: z.cena || 0 };
   }
   function openForm() { setItems([makePlantItemLocal()]); setFormOpen(true); }
   function resetForm() { setKlient(""); setItems(null); setFormOpen(false); }
@@ -114,7 +114,7 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
   }
 
   function saveOrder() {
-    if (!klient.trim() || !items || items.length === 0) return;
+    if (!klient.trim() || !items || items.length === 0 || items.some((it) => clampInt(it.ilosc, 0) <= 0)) return;
     const matched = clients.find((c) => c.nazwa.trim().toLowerCase() === klient.trim().toLowerCase());
     const pozycje = items.map((it) => ({ ...it, nazwa: labelFor(it) }));
     const order = {
@@ -152,7 +152,7 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
                     <select value={it.container} onChange={(e) => updateItem(idx, { container: e.target.value })}>
                       {potSizes.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <input type="number" inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: clampInt(e.target.value, 1) })} />
+                    <input type="number" inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                     <div className="price-input-wrap small">
                       <input type="number" inputMode="decimal" min="0" value={it.cena} onChange={(e) => updateItem(idx, { cena: Math.max(0, Number(e.target.value) || 0) })} />
                       <span className="pln">zł</span>
@@ -169,7 +169,7 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
                     {zestawy.map((z) => <option key={z.id} value={z.id}>Zestaw: {z.nazwa}</option>)}
                   </select>
                   <div className="order-item-sub">
-                    <input type="number" inputMode="decimal" min="0.1" step="0.1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: clampModuleQty(e.target.value) })} />
+                    <input type="number" inputMode="decimal" min="0.1" step="0.1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                     <div className="price-input-wrap small">
                       <input type="number" inputMode="decimal" min="0" value={it.cena} onChange={(e) => updateItem(idx, { cena: Math.max(0, Number(e.target.value) || 0) })} />
                       <span className="pln">zł</span>
@@ -197,7 +197,7 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
 
           <div className="form-actions">
             <button className="secondary-btn" onClick={resetForm}>Anuluj</button>
-            <button className="primary-btn" disabled={!klient.trim()} onClick={saveOrder}>Zapisz zamówienie</button>
+            <button className="primary-btn" disabled={!klient.trim() || items.some((it) => clampInt(it.ilosc, 0) <= 0)} onClick={saveOrder}>Zapisz zamówienie</button>
           </div>
         </div>
       )}
