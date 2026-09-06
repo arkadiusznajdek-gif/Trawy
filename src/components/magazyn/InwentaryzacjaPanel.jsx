@@ -8,7 +8,7 @@ export function InwentaryzacjaPanel({ plants, inventory, containers, plantContai
   const [container, setContainer] = useState(avail[0] || "grunt");
   const [trackAsBatch, setTrackAsBatch] = useState(false);
   const [segmentId, setSegmentId] = useState("");
-  const [stanFizyczny, setStanFizyczny] = useState(0);
+  const [stanFizyczny, setStanFizyczny] = useState("");
   const [powod, setPowod] = useState("");
   const [kosztJednostkowy, setKosztJednostkowy] = useState(0);
   const [location, setLocation] = useState("");
@@ -105,7 +105,7 @@ export function InwentaryzacjaPanel({ plants, inventory, containers, plantContai
 
         <label className="field">
           <span>Ilość fizyczna (rzeczywiście policzona)</span>
-          <input type="number" inputMode="numeric" min="0" value={stanFizyczny} onChange={(e) => setStanFizyczny(clampInt(e.target.value, 0))} />
+          <input type="number" inputMode="numeric" min="0" value={stanFizyczny} onChange={(e) => setStanFizyczny(e.target.value)} placeholder="Stan fizyczny" />
         </label>
 
         <div className="order-item-subtotal" style={{ color: roznica < 0 ? "var(--danger, #c0392b)" : roznica > 0 ? "var(--accent, #2e7d32)" : undefined }}>

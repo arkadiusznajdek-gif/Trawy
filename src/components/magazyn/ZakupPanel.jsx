@@ -5,7 +5,7 @@ export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformP
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
   const avail = resolveContainers(plantContainerSizes, containers, plantId);
   const [container, setContainer] = useState(avail[0] || "grunt");
-  const [ilosc, setIlosc] = useState(1);
+  const [ilosc, setIlosc] = useState("");
   const [kosztJednostkowy, setKosztJednostkowy] = useState(0);
   const [location, setLocation] = useState("");
   const [trackAsBatch, setTrackAsBatch] = useState(false);
@@ -27,7 +27,7 @@ export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformP
       trackAsBatch,
       customLabel: customLabel.trim(),
     });
-    setIlosc(1);
+    setIlosc("");
     setLocation("");
     setCustomLabel("");
   }
@@ -53,7 +53,7 @@ export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformP
         </label>
 
         <div className="order-item-sub">
-          <input type="number" inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(clampInt(e.target.value, 1))} />
+          <input type="number" inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(e.target.value)} placeholder="Ilość" />
           <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt.</span>
         </div>
 

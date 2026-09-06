@@ -9,7 +9,7 @@ export function PrzesadzeniePanel({ plants, inventory, containers, plantContaine
   const [sourceContainer, setSourceContainer] = useState(avail[0] || "grunt");
   const [trackAsBatch, setTrackAsBatch] = useState(false);
   const [sourceSegmentId, setSourceSegmentId] = useState("");
-  const [ilosc, setIlosc] = useState(1);
+  const [ilosc, setIlosc] = useState("");
   const [toContainer, setToContainer] = useState(avail.find((c) => c !== (avail[0] || "grunt")) || avail[0] || "P9");
   const [toLocation, setToLocation] = useState("");
   const [formError, setFormError] = useState("");
@@ -64,7 +64,7 @@ export function PrzesadzeniePanel({ plants, inventory, containers, plantContaine
       trackAsBatch, sourceSegmentId: trackAsBatch && sourceSegmentId ? sourceSegmentId : null,
     });
     if (result) setLastResult(result);
-    setIlosc(1);
+    setIlosc("");
     setToLocation("");
   }
 
@@ -111,7 +111,7 @@ export function PrzesadzeniePanel({ plants, inventory, containers, plantContaine
         )}
 
         <div className="order-item-sub">
-          <input type="number" inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(clampInt(e.target.value, 1))} />
+          <input type="number" inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(e.target.value)} placeholder="Ilość" />
           <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt. do przesadzenia</span>
         </div>
 

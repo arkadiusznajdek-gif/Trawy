@@ -5,14 +5,14 @@ import { batchLabel } from "./PartiePanel";
 
 export function emptyDivisionTarget(containers, sourceContainer) {
   const opts = containers.filter((c) => c !== sourceContainer && c !== "grunt");
-  return { container: opts[0] || containers[0] || "P9", ilosc: 1, location: "" };
+  return { container: opts[0] || containers[0] || "P9", ilosc: "", location: "" };
 }
 
 export function PodzialPanel({ plants, inventory, containers, plantContainerSizes, costs, potRecipes, substrateCostPerL, onPerformDivision, batchSegments, batches }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
   const avail = resolveContainers(plantContainerSizes, containers, plantId);
   const [sourceContainer, setSourceContainer] = useState(avail[0] || "grunt");
-  const [sourceQty, setSourceQty] = useState(1);
+  const [sourceQty, setSourceQty] = useState("");
   const [deductSource, setDeductSource] = useState(true);
   const [trackAsBatch, setTrackAsBatch] = useState(false);
   const [sourceSegmentId, setSourceSegmentId] = useState("");
@@ -75,7 +75,7 @@ export function PodzialPanel({ plants, inventory, containers, plantContainerSize
     });
     if (result) setLastResult(result);
     setTargets([emptyDivisionTarget(avail, sourceContainer)]);
-    setSourceQty(1);
+    setSourceQty("");
   }
 
   return (
@@ -99,7 +99,7 @@ export function PodzialPanel({ plants, inventory, containers, plantContainerSize
         </label>
 
         <div className="order-item-sub">
-          <input type="number" inputMode="numeric" min="1" value={sourceQty} onChange={(e) => setSourceQty(clampInt(e.target.value, 1))} />
+          <input type="number" inputMode="numeric" min="1" value={sourceQty} onChange={(e) => setSourceQty(e.target.value)} placeholder="Ilość źródłowa" />
           <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt. źródła wykorzystane (ubytek — niezależne od liczby nowych roślin)</span>
         </div>
 
@@ -140,7 +140,7 @@ export function PodzialPanel({ plants, inventory, containers, plantContainerSize
                 <select value={t.container} onChange={(e) => updateTarget(idx, { container: e.target.value })}>
                   {avail.filter((c) => c !== "grunt" || true).map((c) => <option key={c} value={c}>{containerLabel(c)}</option>)}
                 </select>
-                <input type="number" inputMode="numeric" min="1" value={t.ilosc} onChange={(e) => updateTarget(idx, { ilosc: clampInt(e.target.value, 1) })} />
+                <input type="number" inputMode="numeric" min="1" value={t.ilosc} onChange={(e) => updateTarget(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                 {targets.length > 1 && <button className="icon-btn danger" onClick={() => removeTarget(idx)}><Trash2 size={15} /></button>}
               </div>
               <input

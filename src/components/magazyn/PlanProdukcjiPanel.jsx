@@ -20,7 +20,7 @@ export function PlanProdukcjiPanel({ plants, batchSegments, batches, productionP
   const [sourceSegmentId, setSourceSegmentId] = useState("");
   const [targetContainer, setTargetContainer] = useState("");
   const [targetLocation, setTargetLocation] = useState("");
-  const [expectedQty, setExpectedQty] = useState(0);
+  const [expectedQty, setExpectedQty] = useState("");
   const now = new Date();
   const [plannedYear, setPlannedYear] = useState(now.getFullYear());
   const [plannedMonth, setPlannedMonth] = useState(now.getMonth() + 1);
@@ -31,7 +31,7 @@ export function PlanProdukcjiPanel({ plants, batchSegments, batches, productionP
 
   function submit() {
     onAddPlan({ plantId, sourceSegmentId: sourceSegmentId || null, targetContainer: targetContainer.trim() || null, targetLocation: targetLocation.trim() || null, expectedQty: Number(expectedQty || 0), plannedYear: Number(plannedYear), plannedMonth: Number(plannedMonth), note: note.trim() });
-    setSourceSegmentId(""); setTargetContainer(""); setTargetLocation(""); setExpectedQty(0); setNote("");
+    setSourceSegmentId(""); setTargetContainer(""); setTargetLocation(""); setExpectedQty(""); setNote("");
     setAddOpen(false);
   }
 
@@ -95,7 +95,7 @@ export function PlanProdukcjiPanel({ plants, batchSegments, batches, productionP
           </label>
           <label className="field">
             <span>Spodziewana ilość nowych sztuk</span>
-            <input type="number" inputMode="numeric" min="0" value={expectedQty} onChange={(e) => setExpectedQty(e.target.value)} />
+            <input type="number" inputMode="numeric" min="0" value={expectedQty} onChange={(e) => setExpectedQty(e.target.value)} placeholder="Ilość (opcjonalnie)" />
           </label>
           <label className="field">
             <span>Notatka (opcjonalnie)</span>

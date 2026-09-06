@@ -5,7 +5,7 @@ import { clampInt, containerLabel, money, resolveContainers } from "../../utils/
 import { batchLabel } from "./PartiePanel";
 
 export function emptyLossForm(plants, containers) {
-  return { plantId: plants[0] ? plants[0].id : "", container: containers && containers[0] ? containers[0] : "P9", ilosc: 1, powod: LOSS_REASONS[0], komentarz: "", data: new Date().toISOString().slice(0, 10) };
+  return { plantId: plants[0] ? plants[0].id : "", container: containers && containers[0] ? containers[0] : "P9", ilosc: "", powod: LOSS_REASONS[0], komentarz: "", data: new Date().toISOString().slice(0, 10) };
 }
 
 export function StratyPanel({ plants, inventory, containers, plantContainerSizes, losses, onAdd, onDelete, costs, batchSegments, batches }) {
