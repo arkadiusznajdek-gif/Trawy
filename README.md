@@ -43,6 +43,11 @@ i zdjęcia. Zmiany są zapisywane lokalnie od razu; jeśli urządzenie jest offl
 zostaną wysłane do Supabase po odzyskaniu połączenia. Po przełączeniu na
 urządzenie, które było w tle, aplikacja odświeża dane z bazy.
 
+Przycisk **Cofnij** w nagłówku przywraca do 10 ostatnich zmian danych
+operacyjnych. Historia cofania istnieje tylko w bieżącej karcie i znika po jej
+odświeżeniu; zdjęcia nie są objęte cofaniem. Przywrócone dane zapisują się
+normalnie i synchronizują z Supabase.
+
 Przed pierwszym użyciem uruchom zawartość `database/supabase.sql` w SQL Editor
 projektu Supabase. Skrypt tworzy tabelę `app_data`, włącza Row Level Security i
 ogranicza dostęp do danych do zalogowanego właściciela. Na urządzeniu, na którym

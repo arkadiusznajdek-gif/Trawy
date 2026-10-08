@@ -15,6 +15,9 @@ export function GlobalStyle() {
       .app-shell { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; position: relative; }
       .app-header { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 14px 16px 0 16px; }
       .app-header-row { display: flex; align-items: center; justify-content: space-between; }
+      .header-actions { display: flex; align-items: center; gap: 12px; }
+      .undo-btn { display: flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 9px; padding: 6px 9px; background: var(--surface); color: var(--brand); font: 600 12px 'Inter', sans-serif; cursor: pointer; }
+      .undo-btn:disabled { opacity: 0.45; cursor: default; }
       .brand { display: flex; align-items: center; gap: 10px; }
       .brand-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 19px; line-height: 1.1; color: var(--brand-dark); }
       .brand-sub { font-size: 12px; color: var(--ink-muted); margin-top: 1px; }

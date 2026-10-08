@@ -77,6 +77,10 @@ export default function App() {
    */
   const [batches, setBatches] = useState([]);
   const [batchSegments, setBatchSegments] = useState([]);
+  const [undoCount, setUndoCount] = useState(0);
+  const undoStackRef = useRef([]);
+  const pendingUndoRef = useRef(null);
+  const previousUndoSnapshotRef = useRef(null);
 
   function notify(msg, type) {
     setToast({ msg, type: type || "error" });
@@ -144,6 +148,18 @@ export default function App() {
     [potSizes, plantContainerSizes, potRecipes, substrateCostPerL, supplies, customPlants, clients, piorinNumber, originCountry, thermalLabelSize]
   );
   const activityData = useMemo(() => ({ done, customTasks, losses, log, tasks, overheadCosts, productionPlans, batchPhotos }), [done, customTasks, losses, log, tasks, overheadCosts, productionPlans, batchPhotos]);
+  const undoableSnapshot = useMemo(
+    () => ({
+      inventory, cennik, orders, done, customTasks, zestawy, customPlants, clients, losses, log,
+      supplies, plantContainerSizes, potRecipes, substrateCostPerL, piorinNumber, originCountry,
+      thermalLabelSize, costs, tasks, overheadCosts, productionPlans, batchPhotos, batches, batchSegments,
+    }),
+    [
+      inventory, cennik, orders, done, customTasks, zestawy, customPlants, clients, losses, log,
+      supplies, plantContainerSizes, potRecipes, substrateCostPerL, piorinNumber, originCountry,
+      thermalLabelSize, costs, tasks, overheadCosts, productionPlans, batchPhotos, batches, batchSegments,
+    ]
+  );
 
   useDebouncedSave("core-data", coreData, ready, notify);
   useDebouncedSave("config-data", configData, ready, notify);
@@ -156,6 +172,41 @@ export default function App() {
    */
   const batchesData = useMemo(() => ({ batches, segments: batchSegments }), [batches, batchSegments]);
   useDebouncedSave(tenantKey("batches-data", DEFAULT_TENANT_ID), batchesData, ready, notify);
+
+  useEffect(() => {
+    if (!ready) return;
+
+    const currentSnapshot = JSON.stringify(undoableSnapshot);
+    if (previousUndoSnapshotRef.current === null) {
+      previousUndoSnapshotRef.current = currentSnapshot;
+      return;
+    }
+    if (previousUndoSnapshotRef.current === currentSnapshot) return;
+
+    const pending = pendingUndoRef.current;
+    if (pending) {
+      clearTimeout(pending.timer);
+    } else {
+      pendingUndoRef.current = {
+        snapshot: JSON.parse(previousUndoSnapshotRef.current),
+        timer: null,
+      };
+    }
+    previousUndoSnapshotRef.current = currentSnapshot;
+    setUndoCount(undoStackRef.current.length + 1);
+
+    pendingUndoRef.current.timer = setTimeout(() => {
+      const completed = pendingUndoRef.current;
+      if (!completed) return;
+      undoStackRef.current = [...undoStackRef.current, completed.snapshot].slice(-10);
+      pendingUndoRef.current = null;
+      setUndoCount(undoStackRef.current.length);
+    }, 900);
+  }, [ready, undoableSnapshot]);
+
+  useEffect(() => () => {
+    if (pendingUndoRef.current) clearTimeout(pendingUndoRef.current.timer);
+  }, []);
 
   // Zdjęcia: zapisywane pojedynczo, tylko te, które faktycznie się zmieniły.
   const photosLoadedRef = useRef({});
@@ -1230,10 +1281,51 @@ export default function App() {
     applyImportText(text);
   }
 
+  function undoLastChange() {
+    const pending = pendingUndoRef.current;
+    const snapshot = pending ? pending.snapshot : undoStackRef.current[undoStackRef.current.length - 1];
+    if (!snapshot) return;
+
+    if (pending) {
+      clearTimeout(pending.timer);
+      pendingUndoRef.current = null;
+    } else {
+      undoStackRef.current = undoStackRef.current.slice(0, -1);
+    }
+    previousUndoSnapshotRef.current = JSON.stringify(snapshot);
+
+    setInventory(snapshot.inventory);
+    setCennik(snapshot.cennik);
+    setOrders(snapshot.orders);
+    setDone(snapshot.done);
+    setCustomTasks(snapshot.customTasks);
+    setZestawy(snapshot.zestawy);
+    setCustomPlants(snapshot.customPlants);
+    setClients(snapshot.clients);
+    setLosses(snapshot.losses);
+    setLog(snapshot.log);
+    setSupplies(snapshot.supplies);
+    setPlantContainerSizes(snapshot.plantContainerSizes);
+    setPotRecipes(snapshot.potRecipes);
+    setSubstrateCostPerL(snapshot.substrateCostPerL);
+    setPiorinNumber(snapshot.piorinNumber);
+    setOriginCountry(snapshot.originCountry);
+    setThermalLabelSize(snapshot.thermalLabelSize);
+    setCosts(snapshot.costs);
+    setTasks(snapshot.tasks);
+    setOverheadCosts(snapshot.overheadCosts);
+    setProductionPlans(snapshot.productionPlans);
+    setBatchPhotos(snapshot.batchPhotos);
+    setBatches(snapshot.batches);
+    setBatchSegments(snapshot.batchSegments);
+    setUndoCount(undoStackRef.current.length);
+    notify("Ostatnia zmiana została cofnięta.", "success");
+  }
+
   return (
     <div className="app-shell">
       <GlobalStyle />
-      <Header tab={tab} potsTotal={potsTotal} />
+      <Header tab={tab} potsTotal={potsTotal} onUndo={undoLastChange} canUndo={undoCount > 0} />
       <main className="app-content">
         {!ready ? (
           <div className="loading">Wczytywanie danych…</div>
