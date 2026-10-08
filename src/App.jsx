@@ -1371,7 +1371,8 @@ export default function App() {
         ) : tab === "sprzedaz" ? (
           <SprzedazTab
             plants={allPlants} potSizes={potSizes} plantContainerSizes={plantContainerSizes}
-            cennik={cennik} setCennik={setCennik} costs={costs} onSetCost={setCost}
+            cennik={cennik} setCennik={setCennik} costs={costs} potRecipes={potRecipes}
+            substrateCostPerL={substrateCostPerL} onSetCost={setCost}
             orders={orders} onCreateOrder={createOrder} onDeleteOrder={deleteOrderH} onFulfillOrder={fulfillOrderH}
             zestawy={zestawy} setZestawy={setZestawy}
             clients={clients} onAddClient={addClient} onDeleteClient={deleteClient}

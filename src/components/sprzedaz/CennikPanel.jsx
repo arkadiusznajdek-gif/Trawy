@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Search, X, Download } from "lucide-react";
-import { money, resolvePotContainers } from "../../utils/helpers";
+import { costOfContainer, money, resolvePotContainers } from "../../utils/helpers";
 import { NumberInput } from "../shared/NumberInput";
 
 /*
@@ -36,7 +36,7 @@ export function buildCennikCsv(plants, potSizes, plantContainerSizes, cennik) {
   return rows.map((r) => r.map(csvCell).join(";")).join("\r\n");
 }
 
-export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, setCennik, costs, onSetCost }) {
+export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, setCennik, costs, potRecipes, substrateCostPerL, onSetCost }) {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState(null);
   const filtered = plants.filter((p) => {
@@ -103,7 +103,10 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
                 <div className="cost-margin-body">
                   {resolvePotContainers(plantContainerSizes, potSizes, p.id).map((c) => {
                     const cena = Number(row[c] || 0);
-                    const koszt = Number(costRow[c] || 0);
+                    const hasRecordedCost = Object.prototype.hasOwnProperty.call(costRow, c) && costRow[c] != null;
+                    const koszt = hasRecordedCost
+                      ? Number(costRow[c] || 0)
+                      : costOfContainer(potRecipes, substrateCostPerL, c);
                     const marza = cena - koszt;
                     const marzaPct = cena > 0 ? (marza / cena) * 100 : 0;
                     return (
@@ -112,15 +115,18 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
                         <label className="price-field">
                           <span>Koszt/szt.</span>
                           <div className="price-input-wrap small">
-                            <NumberInput inputMode="decimal" min="0" step="0.01" value={costRow[c] != null ? Math.round(Number(costRow[c]) * 100) / 100 : ""} onChange={(e) => onSetCost(p.id, c, e.target.value)} />
+                            <NumberInput inputMode="decimal" min="0" step="0.01" value={Math.round(koszt * 100) / 100} onChange={(e) => onSetCost(p.id, c, e.target.value)} />
                             <span className="pln">zł</span>
                           </div>
                         </label>
+                        {!hasRecordedCost && potRecipes[c] && (
+                          <span className="hint-text">Z receptury</span>
+                        )}
                         <span className={`margin-badge ${marza < 0 ? "neg" : ""}`}>Marża: {money(marza)} zł ({marzaPct.toFixed(0)}%)</span>
                       </div>
                     );
                   })}
-                  <p className="hint-text" style={{ margin: "6px 0 0" }}>Koszt startowy (np. dla kupionych P9) wpisz ręcznie. Koszt sztuk powstałych przez Podział liczy się sam.</p>
+                  <p className="hint-text" style={{ margin: "6px 0 0" }}>Jeśli brak kosztu zakupu lub produkcji, koszt/szt. bierze się z Receptury. Koszt znanych sztuk ma pierwszeństwo; możesz go też wpisać ręcznie.</p>
                 </div>
               )}
             </div>

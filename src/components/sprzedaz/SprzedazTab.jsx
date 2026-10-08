@@ -5,7 +5,7 @@ import { ZamowieniaPanel } from "./ZamowieniaPanel";
 import { KlienciPanel } from "./KlienciPanel";
 import { RaportyPanel } from "./RaportyPanel";
 
-export function SprzedazTab({ plants, potSizes, plantContainerSizes, cennik, setCennik, costs, onSetCost, orders, onCreateOrder, onDeleteOrder, onFulfillOrder, zestawy, setZestawy, clients, onAddClient, onDeleteClient, overheadCosts, batchSegments, batches }) {
+export function SprzedazTab({ plants, potSizes, plantContainerSizes, cennik, setCennik, costs, potRecipes, substrateCostPerL, onSetCost, orders, onCreateOrder, onDeleteOrder, onFulfillOrder, zestawy, setZestawy, clients, onAddClient, onDeleteClient, overheadCosts, batchSegments, batches }) {
   const [sub, setSub] = useState("cennik");
   return (
     <div className="tab-pad">
@@ -16,7 +16,7 @@ export function SprzedazTab({ plants, potSizes, plantContainerSizes, cennik, set
         <button className={sub === "klienci" ? "active" : ""} onClick={() => setSub("klienci")}>Klienci{clients.length ? ` (${clients.length})` : ""}</button>
         <button className={sub === "raporty" ? "active" : ""} onClick={() => setSub("raporty")}>Raporty</button>
       </div>
-      {sub === "cennik" && <CennikPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} setCennik={setCennik} costs={costs} onSetCost={onSetCost} />}
+      {sub === "cennik" && <CennikPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} setCennik={setCennik} costs={costs} potRecipes={potRecipes} substrateCostPerL={substrateCostPerL} onSetCost={onSetCost} />}
       {sub === "zestawy" && <ZestawyPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} zestawy={zestawy} setZestawy={setZestawy} cennik={cennik} />}
       {sub === "zamowienia" && (
         <ZamowieniaPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} orders={orders} onCreateOrder={onCreateOrder}
