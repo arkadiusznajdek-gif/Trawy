@@ -18,7 +18,7 @@ export function PhotoThumb({ plantId, photos, setPhotos, onError, size = 46 }) {
     <label className="photo-thumb" style={{ width: size, height: size }}
       onClick={(e) => e.stopPropagation()} aria-label="Dodaj zdjęcie">
       {src ? <img src={src} alt="" /> : <Camera size={16} />}
-      <input type="file" accept="image/*" onChange={handleFile} className="visually-hidden-input" />
+      <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="visually-hidden-input" />
     </label>
   );
 }
