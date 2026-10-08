@@ -1,28 +1,40 @@
-const CACHE_NAME = "szkolka-traw-v1";
+const CACHE_NAME = "szkolka-traw-v2";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll([
+      "/Trawy/",
+      "/Trawy/index.html",
+      "/Trawy/manifest.webmanifest",
+    ]))
+  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((names) =>
-      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+      Promise.all(names.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)))
     )
   );
   self.clients.claim();
 });
 
-// Strategia: sieć najpierw, cache jako zapasowy fallback (offline).
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
+
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (url.pathname.startsWith("/Trawy/")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/Trawy/")))
+    );
+  }
 });

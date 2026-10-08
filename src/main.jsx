@@ -10,6 +10,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    const swUrl = new URL("./sw.js", window.location.href).href;
+    navigator.serviceWorker.register(swUrl).catch(() => {});
   });
 }
