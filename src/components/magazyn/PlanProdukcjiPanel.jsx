@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { containerLabel } from "../../utils/helpers";
 import { plantName, batchLabel } from "./PartiePanel";
+import { LocationField } from "../shared/LocationField";
 
 /*
  * ROADMAPA (SHOULD HAVE, pkt 6): planowanie produkcji. Plan to notatka
@@ -91,7 +92,7 @@ export function PlanProdukcjiPanel({ plants, batchSegments, batches, productionP
           </label>
           <label className="field">
             <span>Docelowa lokalizacja (opcjonalnie)</span>
-            <input type="text" placeholder="np. Kwatera B" value={targetLocation} onChange={(e) => setTargetLocation(e.target.value)} />
+            <LocationField value={targetLocation} onChange={setTargetLocation} />
           </label>
           <label className="field">
             <span>Spodziewana ilość nowych sztuk</span>

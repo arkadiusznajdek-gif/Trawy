@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { containerLabel, clampInt, costOfContainer, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
+import { LocationField } from "../shared/LocationField";
 
 export function PrzesadzeniePanel({ plants, inventory, containers, plantContainerSizes, costs, potRecipes, substrateCostPerL, batchSegments, batches, onPerformTransplant }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
@@ -124,7 +125,7 @@ export function PrzesadzeniePanel({ plants, inventory, containers, plantContaine
 
         <label className="field">
           <span>Lokalizacja docelowa (opcjonalnie)</span>
-          <input type="text" placeholder="np. Kwatera B" value={toLocation} onChange={(e) => setToLocation(e.target.value)} />
+          <LocationField value={toLocation} onChange={setToLocation} />
         </label>
 
         <div className="order-item-subtotal">

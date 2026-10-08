@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { containerLabel, clampInt, resolveContainers } from "../../utils/helpers";
+import { LocationField } from "../shared/LocationField";
 
 export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformPurchase }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
@@ -64,7 +65,7 @@ export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformP
 
         <label className="field">
           <span>Lokalizacja (opcjonalnie)</span>
-          <input type="text" placeholder="np. Kwatera A" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <LocationField value={location} onChange={setLocation} />
         </label>
 
         <label className="checkbox-field">

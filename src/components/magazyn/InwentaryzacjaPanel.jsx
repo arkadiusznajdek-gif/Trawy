@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { containerLabel, clampInt, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
+import { LocationField } from "../shared/LocationField";
 
 export function InwentaryzacjaPanel({ plants, inventory, containers, plantContainerSizes, batchSegments, batches, onPerformInventoryCount }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
@@ -128,7 +129,7 @@ export function InwentaryzacjaPanel({ plants, inventory, containers, plantContai
                 <p className="hint-text">Nadwyżka o nieznanym pochodzeniu — zostanie założona jako osobna partia „korekta”, nie zostanie dopisana anonimowo do istniejącego segmentu.</p>
                 <label className="field">
                   <span>Lokalizacja (opcjonalnie)</span>
-                  <input type="text" placeholder="np. Kwatera A" value={location} onChange={(e) => setLocation(e.target.value)} />
+                  <LocationField value={location} onChange={setLocation} />
                 </label>
               </>
             )}

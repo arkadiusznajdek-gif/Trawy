@@ -1,6 +1,7 @@
 export const MONTHS = ["", "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
 export const ROMAN_BY_MONTH = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 export const DEFAULT_POT_SIZES = ["P9", "C3", "C5"];
+export const LOCATION_PRESETS = ["Matecznik A", "Matecznik B", "Tunel A", "Tunel B", "Kontenerownia A", "Kontenerownia B"];
 export const PHOTO_MAX_W = 380;
 export const PHOTO_QUALITY = 0.55;
 export const LOSS_REASONS = ["Choroba", "Wymarznięcie", "Susza", "Uszkodzenie mechaniczne", "Szkodniki", "Przesuszenie", "Nadmiar wody", "Nieprzyjęcie się", "Inne"];

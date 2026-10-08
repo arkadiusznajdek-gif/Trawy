@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { containerLabel, clampInt, costOfContainer, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
+import { LocationField } from "../shared/LocationField";
 
 export function emptyDivisionTarget(containers, sourceContainer) {
   const opts = containers.filter((c) => c !== sourceContainer && c !== "grunt");
@@ -143,12 +144,10 @@ export function PodzialPanel({ plants, inventory, containers, plantContainerSize
                 <input type="number" inputMode="numeric" min="1" value={t.ilosc} onChange={(e) => updateTarget(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                 {targets.length > 1 && <button className="icon-btn danger" onClick={() => removeTarget(idx)}><Trash2 size={15} /></button>}
               </div>
-              <input
-                type="text"
-                placeholder="Lokalizacja (opcjonalnie, np. Kwatera B)"
+              <LocationField
                 value={t.location || ""}
-                onChange={(e) => updateTarget(idx, { location: e.target.value })}
-                style={{ marginTop: 4 }}
+                onChange={(location) => updateTarget(idx, { location })}
+                placeholder="lub wpisz inne miejsce"
               />
               <div className="order-item-subtotal">koszt/szt.: ~{money(unitCost)} zł</div>
             </div>
