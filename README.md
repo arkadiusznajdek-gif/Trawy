@@ -11,8 +11,8 @@ src/
   data/plants.js              — katalog 26 odmian traw (dane, nie logika)
   constants.js                — MONTHS, DEFAULT_POT_SIZES, TASK_STATUS_META...
   utils/helpers.js            — czyste funkcje pomocnicze (bez Reacta)
-  utils/storage.js            — warstwa zapisu: window.storage (Claude) lub
-                                 localStorage (uruchomienie poza Claude)
+  utils/storage.js            — lokalny zapis offline i synchronizacja
+                                 zaszyfrowanych sesją użytkownika danych z Supabase
   components/
     layout/                   — Header, BottomNav, GrassMark
     pulpit/                   — PulpitTab, TasksSection
@@ -35,9 +35,30 @@ npm install
 npm run dev
 ```
 
-Poza środowiskiem Claude Artifacts nie ma `window.storage`, więc `utils/storage.js`
-automatycznie przełącza się na `localStorage` o identycznym kształcie API —
-reszta aplikacji tego nie zauważa.
+## Synchronizacja danych
+
+Logowanie Supabase jest wymagane. Zaloguj się na to samo konto e-mail na
+komputerze i telefonie, aby współdzielić rośliny, stany magazynowe, ustawienia
+i zdjęcia. Zmiany są zapisywane lokalnie od razu; jeśli urządzenie jest offline,
+zostaną wysłane do Supabase po odzyskaniu połączenia. Po przełączeniu na
+urządzenie, które było w tle, aplikacja odświeża dane z bazy.
+
+Przed pierwszym użyciem uruchom zawartość `database/supabase.sql` w SQL Editor
+projektu Supabase. Skrypt tworzy tabelę `app_data`, włącza Row Level Security i
+ogranicza dostęp do danych do zalogowanego właściciela. Na urządzeniu, na którym
+masz już dane lokalne, zaloguj się jako pierwszym: jego istniejące dane zostaną
+zachowane i wysłane do bazy. Pozostałe urządzenia pobiorą je po zalogowaniu.
+
+## Uruchomienie lokalne
+
+```bash
+npm install
+npm run dev
+```
+
+Kod aplikacji publikuj przez push do gałęzi `main`; GitHub Actions wdraża nową
+wersję na GitHub Pages. Zmiana schematu bazy wymaga osobnej migracji SQL i
+uruchomienia jej w Supabase — sam push kodu nie zmienia bazy.
 
 ## Co zmieniło się względem oryginału (v9)
 
