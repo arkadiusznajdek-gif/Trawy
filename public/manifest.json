@@ -2,13 +2,13 @@
   "name": "Szkółka traw ozdobnych",
   "short_name": "Szkółka traw",
   "description": "Zarządzanie szkółką traw ozdobnych — magazyn, zamówienia, harmonogram.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f6f4ee",
   "theme_color": "#2f6b3f",
   "orientation": "portrait",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

@@ -1,85 +1,120 @@
-import { useRef, useEffect } from "react";
+﻿import { useRef, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-/**
- * Warstwa storage.
- * W środowisku Claude Artifacts dostępne jest window.storage (get/set/list/delete).
- * Poza nim (zwykłe uruchomienie przeglądarkowe np. przez Vite) używamy
- * localStorage jako zamiennika o identycznym kształcie API — dzięki temu
- * reszta aplikacji nie musi wiedzieć, gdzie faktycznie trafiają dane.
- */
-const hasNativeStorage = typeof window !== "undefined" && !!window.storage;
+const SUPABASE_URL = "https://kqpwahcxnmamypbcvwii.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_lID65XpydwsykUaG6AbfFg_-odlj9c5";
 
-const localStorageShim = {
-  async get(key) {
-    if (typeof window === "undefined") return null;
-    const raw = window.localStorage.getItem(`szkolka:${key}`);
-    if (raw == null) return null;
-    return { key, value: raw };
-  },
-  async set(key, value) {
-    if (typeof window === "undefined") return null;
-    window.localStorage.setItem(`szkolka:${key}`, value);
-    return { key, value };
-  },
-  async delete(key) {
-    if (typeof window === "undefined") return null;
-    window.localStorage.removeItem(`szkolka:${key}`);
-    return { key, deleted: true };
-  },
-  async list(prefix) {
-    if (typeof window === "undefined") return { keys: [] };
-    const keys = [];
-    for (let i = 0; i < window.localStorage.length; i++) {
-      const k = window.localStorage.key(i);
-      if (k && k.startsWith(`szkolka:${prefix || ""}`)) keys.push(k.replace("szkolka:", ""));
-    }
-    return { keys };
-  },
-};
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const store = hasNativeStorage ? window.storage : localStorageShim;
-
-export async function loadKey(key, fallback) {
-  try {
-    const res = await store.get(key, false);
-    if (res && res.value) return JSON.parse(res.value);
-    return fallback;
-  } catch (e) {
-    return fallback;
-  }
+function localGet(key) {
+  return window.localStorage.getItem(`szkolka:${key}`);
 }
-
-export async function saveKey(key, value) {
-  try {
-    await store.set(key, JSON.stringify(value), false);
-    return true;
-  } catch (e) {
-    return false;
-  }
+function localSet(key, rawValue) {
+  window.localStorage.setItem(`szkolka:${key}`, rawValue);
 }
-
-export async function deleteKey(key) {
-  try {
-    await store.delete(key, false);
-    return true;
-  } catch (e) {
-    return false;
-  }
+function localDelete(key) {
+  window.localStorage.removeItem(`szkolka:${key}`);
 }
-
-export async function listPhotoKeys() {
+function getPendingQueue() {
   try {
-    const res = await store.list("photo:");
-    return (res && res.keys) || [];
-  } catch (e) {
+    return JSON.parse(window.localStorage.getItem("szkolka:_pending_sync") || "[]");
+  } catch {
     return [];
   }
 }
+function setPendingQueue(list) {
+  window.localStorage.setItem("szkolka:_pending_sync", JSON.stringify(list));
+}
+function queueForSync(key) {
+  const queue = getPendingQueue();
+  if (!queue.includes(key)) queue.push(key);
+  setPendingQueue(queue);
+}
 
-/**
- * Zapisuje dany klucz z debounce — wywoływane ponownie przy każdej zmianie
- * `value`, ale faktyczny zapis następuje dopiero `delay` ms po ostatniej zmianie.
- */
+let currentUserId = null;
+export function setCurrentUserId(id) {
+  currentUserId = id;
+}
+
+async function pushKeyToCloud(key) {
+  if (!currentUserId) return false;
+  const raw = localGet(key);
+  if (raw == null) return false;
+  try {
+    const { error } = await supabase.from("app_data").upsert({
+      user_id: currentUserId,
+      key,
+      value: JSON.parse(raw),
+      updated_at: new Date().toISOString(),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function flushPendingSync() {
+  if (typeof navigator === "undefined" || !navigator.onLine || !currentUserId) return;
+  const queue = getPendingQueue();
+  if (queue.length === 0) return;
+  const remaining = [];
+  for (const key of queue) {
+    const ok = await pushKeyToCloud(key);
+    if (!ok) remaining.push(key);
+  }
+  setPendingQueue(remaining);
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    flushPendingSync();
+  });
+}
+
+export async function loadKey(key, fallback) {
+  const raw = localGet(key);
+  return raw == null ? fallback : JSON.parse(raw);
+}
+
+export async function pullAllFromCloud() {
+  if (!currentUserId || typeof navigator === "undefined" || !navigator.onLine) return;
+  const { data, error } = await supabase.from("app_data").select("key, value").eq("user_id", currentUserId);
+  if (error || !data) return;
+  data.forEach((row) => {
+    localSet(row.key, JSON.stringify(row.value));
+  });
+}
+
+export async function saveKey(key, value) {
+  localSet(key, JSON.stringify(value));
+  if (typeof navigator !== "undefined" && navigator.onLine && currentUserId) {
+    const ok = await pushKeyToCloud(key);
+    if (!ok) queueForSync(key);
+  } else {
+    queueForSync(key);
+  }
+  return true;
+}
+
+export async function deleteKey(key) {
+  localDelete(key);
+  if (currentUserId) {
+    try {
+      await supabase.from("app_data").delete().eq("user_id", currentUserId).eq("key", key);
+    } catch {}
+  }
+  return true;
+}
+
+export async function listPhotoKeys() {
+  const keys = [];
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (k && k.startsWith("szkolka:photo:")) keys.push(k.replace("szkolka:", ""));
+  }
+  return keys;
+}
+
 export function useDebouncedSave(key, value, ready, onError, delay = 500) {
   const timer = useRef(null);
   useEffect(() => {
@@ -94,13 +129,6 @@ export function useDebouncedSave(key, value, ready, onError, delay = 500) {
   }, [value, ready]);
 }
 
-/**
- * Buduje klucz zapisu z prefiksem dzierżawcy (tenantId) — na razie używane
- * WYŁĄCZNIE dla nowych danych partii/segmentów. Istniejące klucze
- * (core-data/config-data/activity-data/photo:*) świadomie NIE przechodzą
- * przez tę funkcję, żeby nie zmienić ich nazwy i nie "zgubić" już zapisanych
- * danych — dokładnie ten błąd już raz kosztował realne dane użytkownika.
- */
 export function tenantKey(key, tenantId) {
   return `${tenantId}:${key}`;
 }
