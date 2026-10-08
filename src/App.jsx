@@ -173,7 +173,20 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [photos, ready]);
 
-  const allPlants = useMemo(() => [...PLANTS, ...customPlants], [customPlants]);
+  const allPlants = useMemo(() => {
+    const legacyGautierFescue = customPlants.find((plant) =>
+      /gautier/i.test(plant.odmiana || "") &&
+      /nied.wiedzie futro/i.test((plant.odmiana || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+    );
+    return [
+      ...PLANTS.map((plant) =>
+        plant.id === "p27" && legacyGautierFescue
+          ? { ...plant, id: legacyGautierFescue.id }
+          : plant
+      ),
+      ...customPlants.filter((plant) => plant.id !== legacyGautierFescue?.id),
+    ];
+  }, [customPlants]);
   const containers = useMemo(() => [...potSizes, "grunt"], [potSizes]);
 
   const totals = useMemo(() => {
