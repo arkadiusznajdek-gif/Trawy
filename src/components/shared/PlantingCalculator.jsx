@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Calculator } from "lucide-react";
 import { suggestPlantingQty } from "../../utils/helpers";
+import { NumberInput } from "./NumberInput";
 
 export function PlantingCalculator({ plant, onApply, compact, lockedMb }) {
   const [mode, setMode] = useState("mb");
@@ -41,8 +42,8 @@ export function PlantingCalculator({ plant, onApply, compact, lockedMb }) {
               {canMb && <button type="button" className={`chip-btn ${mode === "mb" ? "chip-active" : ""}`} onClick={() => setMode("mb")}>metry bieżące</button>}
               {canM2 && <button type="button" className={`chip-btn ${mode === "m2" ? "chip-active" : ""}`} onClick={() => setMode("m2")}>powierzchnia m²</button>}
             </div>
-            <input
-              type="number" inputMode="decimal" min="0" step="0.1"
+            <NumberInput
+              inputMode="decimal" min="0" step="0.1"
               placeholder={mode === "mb" ? "np. 12" : "np. 8"}
               value={value} onChange={(e) => setValue(e.target.value)}
             />
@@ -60,7 +61,7 @@ export function PlantingCalculator({ plant, onApply, compact, lockedMb }) {
           <span>Widełki: {result.min}–{result.max} szt.</span>
           <div className="planting-calc-pick">
             <button type="button" className="chip-btn tiny" onClick={() => setChosenQty(String(result.min))}>Min</button>
-            <input type="number" inputMode="numeric" min="0" className="qty-pick-input" value={chosenQty} onChange={(e) => setChosenQty(e.target.value)} />
+            <NumberInput inputMode="numeric" min="0" className="qty-pick-input" value={chosenQty} onChange={(e) => setChosenQty(e.target.value)} />
             <button type="button" className="chip-btn tiny" onClick={() => setChosenQty(String(result.max))}>Maks</button>
           </div>
           {onApply && (

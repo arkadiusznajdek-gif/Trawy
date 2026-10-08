@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { LOSS_REASONS } from "../../constants";
 import { clampInt, containerLabel, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
+import { NumberInput } from "../shared/NumberInput";
 
 export function emptyLossForm(plants, containers) {
   return { plantId: plants[0] ? plants[0].id : "", container: containers && containers[0] ? containers[0] : "P9", ilosc: "", powod: LOSS_REASONS[0], komentarz: "", data: new Date().toISOString().slice(0, 10) };
@@ -139,7 +140,7 @@ export function StratyPanel({ plants, inventory, containers, plantContainerSizes
           )}
 
           <div className="order-item-sub">
-            <input type="number" inputMode="numeric" min="1" value={f.ilosc} onChange={(e) => setF({ ...f, ilosc: e.target.value })} />
+            <NumberInput inputMode="numeric" min="1" value={f.ilosc} onChange={(e) => setF({ ...f, ilosc: e.target.value })} />
             <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt.</span>
           </div>
 

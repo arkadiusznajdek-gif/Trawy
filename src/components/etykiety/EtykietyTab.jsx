@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Minus, Plus, Printer } from "lucide-react";
 import { clampInt, containerLabel } from "../../utils/helpers";
 import { plantName, batchLabel } from "../magazyn/PartiePanel";
+import { NumberInput } from "../shared/NumberInput";
 
 /*
  * ROADMAPA pkt 5: etykiety z identyfikatorem partii. Dotychczasowy tryb
@@ -122,10 +123,10 @@ export function EtykietyTab({ plants, inventory, potSizes, batchSegments, batche
           <label className="field">
             <span>Rozmiar etykiety (mm)</span>
             <div className="order-item-sub">
-              <input type="number" inputMode="numeric" min="10" value={thermalLabelSize?.width || 40}
+              <NumberInput inputMode="numeric" min="10" value={thermalLabelSize?.width || 40}
                 onChange={(e) => setThermalLabelSize({ ...thermalLabelSize, width: clampInt(e.target.value, 10) })} style={{ maxWidth: 80 }} />
               <span style={{ fontSize: 12 }}>×</span>
-              <input type="number" inputMode="numeric" min="10" value={thermalLabelSize?.height || 30}
+              <NumberInput inputMode="numeric" min="10" value={thermalLabelSize?.height || 30}
                 onChange={(e) => setThermalLabelSize({ ...thermalLabelSize, height: clampInt(e.target.value, 10) })} style={{ maxWidth: 80 }} />
               <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>mm — dopasuj do rolki w Twojej drukarce</span>
             </div>
@@ -186,7 +187,7 @@ export function EtykietyTab({ plants, inventory, potSizes, batchSegments, batche
                 </div>
                 <div className="stepper">
                   <button className="stepper-btn" onClick={() => bump(p.id, -1)}><Minus size={15} /></button>
-                  <input className="stepper-input" type="number" min="0" inputMode="numeric" value={counts[p.id] || 0} onChange={(e) => setCount(p.id, e.target.value)} />
+                  <NumberInput className="stepper-input" min="0" inputMode="numeric" value={counts[p.id] || 0} onChange={(e) => setCount(p.id, e.target.value)} />
                   <button className="stepper-btn" onClick={() => bump(p.id, 1)}><Plus size={15} /></button>
                 </div>
               </div>
@@ -225,7 +226,7 @@ export function EtykietyTab({ plants, inventory, potSizes, batchSegments, batche
                 </div>
                 <div className="stepper">
                   <button className="stepper-btn" onClick={() => bumpSegment(s.id, -1, s.ilosc)}><Minus size={15} /></button>
-                  <input className="stepper-input" type="number" min="0" max={s.ilosc} inputMode="numeric" value={segmentCounts[s.id] || 0} onChange={(e) => setSegmentCount(s.id, e.target.value, s.ilosc)} />
+                  <NumberInput className="stepper-input" min="0" max={s.ilosc} inputMode="numeric" value={segmentCounts[s.id] || 0} onChange={(e) => setSegmentCount(s.id, e.target.value, s.ilosc)} />
                   <button className="stepper-btn" onClick={() => bumpSegment(s.id, 1, s.ilosc)}><Plus size={15} /></button>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Search, X, Download } from "lucide-react";
 import { money, resolvePotContainers } from "../../utils/helpers";
+import { NumberInput } from "../shared/NumberInput";
 
 /*
  * FUNKCJA DODATKOWA: eksport cennika (wszystkie odmiany × wszystkie
@@ -92,7 +93,7 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
                   <label key={c} className="price-field">
                     <span>{c}</span>
                     <div className="price-input-wrap">
-                      <input type="number" inputMode="decimal" min="0" placeholder="0" value={row[c] ?? ""} onChange={(e) => setPrice(p.id, c, e.target.value)} />
+                      <NumberInput inputMode="decimal" min="0" value={row[c] ?? ""} onChange={(e) => setPrice(p.id, c, e.target.value)} />
                       <span className="pln">zł</span>
                     </div>
                   </label>
@@ -111,7 +112,7 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
                         <label className="price-field">
                           <span>Koszt/szt.</span>
                           <div className="price-input-wrap small">
-                            <input type="number" inputMode="decimal" min="0" step="0.01" placeholder="0" value={costRow[c] != null ? Math.round(Number(costRow[c]) * 100) / 100 : ""} onChange={(e) => onSetCost(p.id, c, e.target.value)} />
+                            <NumberInput inputMode="decimal" min="0" step="0.01" value={costRow[c] != null ? Math.round(Number(costRow[c]) * 100) / 100 : ""} onChange={(e) => onSetCost(p.id, c, e.target.value)} />
                             <span className="pln">zł</span>
                           </div>
                         </label>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { clampInt, money } from "../../utils/helpers";
+import { NumberInput } from "../shared/NumberInput";
 
 export function emptySupplyForm() { return { nazwa: "", ilosc: 0, jednostka: "szt.", prog: "", cena: 0, typ: "inne", rozmiar: "" }; }
 
@@ -41,7 +42,7 @@ export function ZaopatrzeniePanel({ supplies, onChangeQty, onAdd, onRemove, potS
             <label className="field" style={{ marginBottom: 10 }}>
               <span>Cena podłoża za litr</span>
               <div className="price-input-wrap">
-                <input type="number" inputMode="decimal" min="0" value={substrateCostPerL} onChange={(e) => onSetSubstrateCostPerL(Math.max(0, Number(e.target.value) || 0))} />
+                <NumberInput inputMode="decimal" min="0" value={substrateCostPerL} onChange={(e) => onSetSubstrateCostPerL(Math.max(0, Number(e.target.value) || 0))} />
                 <span className="pln">zł/l</span>
               </div>
             </label>
@@ -54,14 +55,14 @@ export function ZaopatrzeniePanel({ supplies, onChangeQty, onAdd, onRemove, potS
                     <label>
                       <span>Donica</span>
                       <div className="price-input-wrap small">
-                        <input type="number" inputMode="decimal" min="0" value={r.koszt_donicy} onChange={(e) => onSetPotRecipe(size, { koszt_donicy: Math.max(0, Number(e.target.value) || 0) })} />
+                        <NumberInput inputMode="decimal" min="0" value={r.koszt_donicy} onChange={(e) => onSetPotRecipe(size, { koszt_donicy: Math.max(0, Number(e.target.value) || 0) })} />
                         <span className="pln">zł</span>
                       </div>
                     </label>
                     <label>
                       <span>Podłoże</span>
                       <div className="price-input-wrap small">
-                        <input type="number" inputMode="decimal" min="0" value={r.podloze_l} onChange={(e) => onSetPotRecipe(size, { podloze_l: Math.max(0, Number(e.target.value) || 0) })} />
+                        <NumberInput inputMode="decimal" min="0" value={r.podloze_l} onChange={(e) => onSetPotRecipe(size, { podloze_l: Math.max(0, Number(e.target.value) || 0) })} />
                         <span className="pln">l</span>
                       </div>
                     </label>
@@ -90,7 +91,7 @@ export function ZaopatrzeniePanel({ supplies, onChangeQty, onAdd, onRemove, potS
                   {linkedCena != null && <span className="recipe-linked-badge"> · z Receptury</span>}
                 </div>
                 <div className="supply-qty-row">
-                  <input className="supply-qty-input" type="number" min="0" inputMode="numeric" value={s.ilosc} onChange={(e) => onChangeQty(s.id, e.target.value)} />
+                  <NumberInput className="supply-qty-input" min="0" inputMode="numeric" value={s.ilosc} onChange={(e) => onChangeQty(s.id, e.target.value)} />
                   <span className="supply-unit">{s.jednostka}</span>
                   {confirmingId !== s.id ? (
                     <button className="icon-btn danger" onClick={() => setConfirmingId(s.id)}><Trash2 size={16} /></button>
@@ -126,15 +127,15 @@ export function ZaopatrzeniePanel({ supplies, onChangeQty, onAdd, onRemove, potS
           )}
           <label className="field"><span>Nazwa</span><input value={f.nazwa} onChange={(e) => setF({ ...f, nazwa: e.target.value })} placeholder={f.typ === "donica" ? "np. Donice C8 (puste)" : "np. Agrowłóknina 1.6m"} /></label>
           <div className="order-item-sub">
-            <input type="number" inputMode="numeric" min="0" value={f.ilosc} onChange={(e) => setF({ ...f, ilosc: e.target.value })} placeholder="ilość" />
+            <NumberInput inputMode="numeric" min="0" value={f.ilosc} onChange={(e) => setF({ ...f, ilosc: e.target.value })} placeholder="ilość" />
             <input value={f.jednostka} onChange={(e) => setF({ ...f, jednostka: e.target.value })} placeholder="jednostka (szt./l/mb)" />
           </div>
           {f.typ === "inne" ? (
-            <label className="field"><span>Cena jednostkowa (zł)</span><input type="number" inputMode="decimal" min="0" step="0.01" value={f.cena} onChange={(e) => setF({ ...f, cena: e.target.value })} placeholder="np. 1.00" /></label>
+            <label className="field"><span>Cena jednostkowa (zł)</span><NumberInput inputMode="decimal" min="0" step="0.01" value={f.cena} onChange={(e) => setF({ ...f, cena: e.target.value })} placeholder="np. 1.00" /></label>
           ) : (
             <p className="hint-text" style={{ marginTop: -6 }}>Cena tego materiału będzie pobierana z Receptury pojemników powyżej (ustaw ją tam po zapisaniu).</p>
           )}
-          <label className="field"><span>Alarm przy ilości ≤ (opcjonalnie)</span><input type="number" inputMode="numeric" min="0" value={f.prog} onChange={(e) => setF({ ...f, prog: e.target.value })} placeholder="np. 20" /></label>
+          <label className="field"><span>Alarm przy ilości ≤ (opcjonalnie)</span><NumberInput inputMode="numeric" min="0" value={f.prog} onChange={(e) => setF({ ...f, prog: e.target.value })} placeholder="np. 20" /></label>
           <div className="form-actions">
             <button className="secondary-btn" onClick={() => { setAddOpen(false); setF(emptySupplyForm()); }}>Anuluj</button>
             <button className="primary-btn" disabled={!f.nazwa.trim() || (f.typ === "donica" && !f.rozmiar.trim())} onClick={submit}>Zapisz</button>

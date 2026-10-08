@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AlertCircle, Boxes, Plus, Trash2 } from "lucide-react";
 import { clampInt, money, resolvePotContainers, uid, containerLabel } from "../../utils/helpers";
 import { plantName, batchLabel } from "../magazyn/PartiePanel";
+import { NumberInput } from "../shared/NumberInput";
 
 function clampModuleQty(v) {
   const n = Number(String(v).replace(",", "."));
@@ -152,9 +153,9 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
                     <select value={it.container} onChange={(e) => updateItem(idx, { container: e.target.value })}>
                       {potSizes.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <input type="number" inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
+                    <NumberInput inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                     <div className="price-input-wrap small">
-                      <input type="number" inputMode="decimal" min="0" value={it.cena} onChange={(e) => updateItem(idx, { cena: Math.max(0, Number(e.target.value) || 0) })} />
+                      <NumberInput inputMode="decimal" min="0" value={it.cena} onChange={(e) => updateItem(idx, { cena: Math.max(0, Number(e.target.value) || 0) })} />
                       <span className="pln">zł</span>
                     </div>
                     {items.length > 1 && <button className="icon-btn danger" onClick={() => removeItem(idx)}><Trash2 size={15} /></button>}
@@ -169,9 +170,9 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
                     {zestawy.map((z) => <option key={z.id} value={z.id}>Zestaw: {z.nazwa}</option>)}
                   </select>
                   <div className="order-item-sub">
-                    <input type="number" inputMode="decimal" min="0.1" step="0.1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
+                    <NumberInput inputMode="decimal" min="0.1" step="0.1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                     <div className="price-input-wrap small">
-                      <input type="number" inputMode="decimal" min="0" value={it.cena} onChange={(e) => updateItem(idx, { cena: Math.max(0, Number(e.target.value) || 0) })} />
+                      <NumberInput inputMode="decimal" min="0" value={it.cena} onChange={(e) => updateItem(idx, { cena: Math.max(0, Number(e.target.value) || 0) })} />
                       <span className="pln">zł</span>
                     </div>
                     {items.length > 1 && <button className="icon-btn danger" onClick={() => removeItem(idx)}><Trash2 size={15} /></button>}

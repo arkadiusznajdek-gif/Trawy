@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { clampInt, money, uid } from "../../utils/helpers";
+import { NumberInput } from "../shared/NumberInput";
 
 const PERIODS = ["miesięcznie", "rocznie", "jednorazowo"];
 
@@ -76,7 +77,7 @@ export function KosztyStalePanel({ costs: overheadCosts, onAdd, onDelete }) {
       ) : (
         <div className="order-form">
           <label className="field"><span>Nazwa</span><input value={f.nazwa} onChange={(e) => setF({ ...f, nazwa: e.target.value })} placeholder="np. Prąd, Woda, Nawozy wiosenne" /></label>
-          <label className="field"><span>Kwota (zł)</span><input type="number" inputMode="decimal" min="0" step="0.01" value={f.kwota} onChange={(e) => setF({ ...f, kwota: e.target.value })} placeholder="np. 250" /></label>
+          <label className="field"><span>Kwota (zł)</span><NumberInput inputMode="decimal" min="0" step="0.01" value={f.kwota} onChange={(e) => setF({ ...f, kwota: e.target.value })} placeholder="np. 250" /></label>
           <label className="field"><span>Okres</span>
             <select value={f.okres} onChange={(e) => setF({ ...f, okres: e.target.value })}>
               {PERIODS.map((p) => <option key={p} value={p}>{p}</option>)}

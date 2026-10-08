@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { containerLabel, clampInt, resolveContainers } from "../../utils/helpers";
 import { LocationField } from "../shared/LocationField";
+import { NumberInput } from "../shared/NumberInput";
 
 export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformPurchase }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
@@ -54,13 +55,13 @@ export function ZakupPanel({ plants, containers, plantContainerSizes, onPerformP
         </label>
 
         <div className="order-item-sub">
-          <input type="number" inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(e.target.value)} placeholder="Ilość" />
+          <NumberInput inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(e.target.value)} placeholder="Ilość" />
           <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt.</span>
         </div>
 
         <label className="field">
           <span>Koszt / szt.</span>
-          <input type="number" inputMode="decimal" min="0" step="0.01" value={kosztJednostkowy} onChange={(e) => setKosztJednostkowy(e.target.value)} />
+          <NumberInput inputMode="decimal" min="0" step="0.01" value={kosztJednostkowy} onChange={(e) => setKosztJednostkowy(e.target.value)} />
         </label>
 
         <label className="field">

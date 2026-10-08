@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { containerLabel, clampInt, costOfContainer, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
 import { LocationField } from "../shared/LocationField";
+import { NumberInput } from "../shared/NumberInput";
 
 export function PrzesadzeniePanel({ plants, inventory, containers, plantContainerSizes, costs, potRecipes, substrateCostPerL, batchSegments, batches, onPerformTransplant }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
@@ -112,7 +113,7 @@ export function PrzesadzeniePanel({ plants, inventory, containers, plantContaine
         )}
 
         <div className="order-item-sub">
-          <input type="number" inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(e.target.value)} placeholder="Ilość" />
+          <NumberInput inputMode="numeric" min="1" value={ilosc} onChange={(e) => setIlosc(e.target.value)} placeholder="Ilość" />
           <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt. do przesadzenia</span>
         </div>
 

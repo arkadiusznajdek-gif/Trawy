@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Boxes, Plus, Trash2, Calculator as CalcIcon } from "lucide-react";
 import { clampInt, money, resolvePotContainers, uid } from "../../utils/helpers";
 import { PlantingCalculator } from "../shared/PlantingCalculator";
+import { NumberInput } from "../shared/NumberInput";
 
 export function emptyZestawItem(plants, potSizes) {
   return { plantId: plants[0] ? plants[0].id : "", container: potSizes && potSizes[0] ? potSizes[0] : "P9", ilosc: "", etykieta: "" };
@@ -59,7 +60,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
           <label className="field"><span>Nazwa zestawu</span><input value={nazwa} onChange={(e) => setNazwa(e.target.value)} placeholder="np. Żywopłot 2mb (moduł) lub Rabata narożna" /></label>
           <label className="field">
             <span>Długość modułu (mb) — opcjonalnie</span>
-            <input type="number" inputMode="decimal" min="0" step="0.1" value={modulMb} onChange={(e) => setModulMb(e.target.value)} placeholder="np. 2" />
+            <NumberInput inputMode="decimal" min="0" step="0.1" value={modulMb} onChange={(e) => setModulMb(e.target.value)} placeholder="np. 2" />
           </label>
           <p className="hint-text" style={{ margin: "0 0 4px" }}>
             {modulMbNum
@@ -82,7 +83,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
                   <select value={it.container} onChange={(e) => updateItem(idx, { container: e.target.value })}>
                     {resolvePotContainers(plantContainerSizes, potSizes, it.plantId).map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  <input type="number" inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
+                  <NumberInput inputMode="numeric" min="1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                   <button type="button" className={`icon-btn ${calcOpen ? "calc-active" : ""}`} onClick={() => setCalcOpenIdx(calcOpen ? null : idx)} title="Kalkulator nasadzeń">
                     <CalcIcon size={16} />
                   </button>
@@ -97,7 +98,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
           <label className="field">
             <span>Cena zestawu (wartość wg cennika: {money(referenceValue)} zł)</span>
             <div className="price-input-wrap">
-              <input type="number" inputMode="decimal" min="0" placeholder="0" value={cena} onChange={(e) => setCena(e.target.value)} />
+              <NumberInput inputMode="decimal" min="0" value={cena} onChange={(e) => setCena(e.target.value)} />
               <span className="pln">zł</span>
             </div>
           </label>

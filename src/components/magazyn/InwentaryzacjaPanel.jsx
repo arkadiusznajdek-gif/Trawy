@@ -2,6 +2,7 @@ import { useState } from "react";
 import { containerLabel, clampInt, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
 import { LocationField } from "../shared/LocationField";
+import { NumberInput } from "../shared/NumberInput";
 
 export function InwentaryzacjaPanel({ plants, inventory, containers, plantContainerSizes, batchSegments, batches, onPerformInventoryCount }) {
   const [plantId, setPlantId] = useState(plants[0] ? plants[0].id : "");
@@ -106,7 +107,7 @@ export function InwentaryzacjaPanel({ plants, inventory, containers, plantContai
 
         <label className="field">
           <span>Ilość fizyczna (rzeczywiście policzona)</span>
-          <input type="number" inputMode="numeric" min="0" value={stanFizyczny} onChange={(e) => setStanFizyczny(e.target.value)} placeholder="Stan fizyczny" />
+          <NumberInput inputMode="numeric" min="0" value={stanFizyczny} onChange={(e) => setStanFizyczny(e.target.value)} placeholder="Stan fizyczny" />
         </label>
 
         <div className="order-item-subtotal" style={{ color: roznica < 0 ? "var(--danger, #c0392b)" : roznica > 0 ? "var(--accent, #2e7d32)" : undefined }}>
@@ -122,7 +123,7 @@ export function InwentaryzacjaPanel({ plants, inventory, containers, plantContai
           <>
             <label className="field">
               <span>Koszt jednostkowy nadwyżki (wymagane)</span>
-              <input type="number" inputMode="decimal" min="0" step="0.01" value={kosztJednostkowy} onChange={(e) => setKosztJednostkowy(e.target.value)} />
+              <NumberInput inputMode="decimal" min="0" step="0.01" value={kosztJednostkowy} onChange={(e) => setKosztJednostkowy(e.target.value)} />
             </label>
             {trackAsBatch && (
               <>

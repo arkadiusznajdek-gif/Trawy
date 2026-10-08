@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, Minus, Plus, PlusCircle, Search, Trash2, X } from "lucide-react";
 import { containerLabel, clampInt, resolveContainers } from "../../utils/helpers";
 import { PhotoThumb } from "../shared/PhotoThumb";
+import { NumberInput } from "../shared/NumberInput";
 import { PlantingCalculator } from "../shared/PlantingCalculator";
 import { PotSizeManager } from "./PotSizeManager";
 import { AddPlantForm } from "./AddPlantForm";
@@ -111,7 +112,7 @@ export function RoslinyPanel({ plants, inventory, onQtyChange, totals, container
                       <span className="qty-label">{containerLabel(c)}</span>
                       <div className="stepper">
                         <button className="stepper-btn" onClick={() => handleQtyChange(p.id, c, Number(row[c] || 0) - 1, Number(row[c] || 0))}><Minus size={15} /></button>
-                        <input className="stepper-input" type="number" min="0" inputMode="numeric"
+                        <NumberInput className="stepper-input" min="0" inputMode="numeric"
                           value={row[c] || 0} onChange={(e) => handleQtyChange(p.id, c, e.target.value, Number(row[c] || 0))} />
                         <button className="stepper-btn" onClick={() => handleQtyChange(p.id, c, Number(row[c] || 0) + 1, Number(row[c] || 0))}><Plus size={15} /></button>
                       </div>

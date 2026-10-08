@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { containerLabel, clampInt, costOfContainer, money, resolveContainers } from "../../utils/helpers";
 import { batchLabel } from "./PartiePanel";
 import { LocationField } from "../shared/LocationField";
+import { NumberInput } from "../shared/NumberInput";
 
 export function emptyDivisionTarget(containers, sourceContainer) {
   const opts = containers.filter((c) => c !== sourceContainer && c !== "grunt");
@@ -100,7 +101,7 @@ export function PodzialPanel({ plants, inventory, containers, plantContainerSize
         </label>
 
         <div className="order-item-sub">
-          <input type="number" inputMode="numeric" min="1" value={sourceQty} onChange={(e) => setSourceQty(e.target.value)} placeholder="Ilość źródłowa" />
+          <NumberInput inputMode="numeric" min="1" value={sourceQty} onChange={(e) => setSourceQty(e.target.value)} placeholder="Ilość źródłowa" />
           <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>szt. źródła wykorzystane (ubytek — niezależne od liczby nowych roślin)</span>
         </div>
 
@@ -141,7 +142,7 @@ export function PodzialPanel({ plants, inventory, containers, plantContainerSize
                 <select value={t.container} onChange={(e) => updateTarget(idx, { container: e.target.value })}>
                   {avail.filter((c) => c !== "grunt" || true).map((c) => <option key={c} value={c}>{containerLabel(c)}</option>)}
                 </select>
-                <input type="number" inputMode="numeric" min="1" value={t.ilosc} onChange={(e) => updateTarget(idx, { ilosc: e.target.value })} placeholder="Ilość" />
+                <NumberInput inputMode="numeric" min="1" value={t.ilosc} onChange={(e) => updateTarget(idx, { ilosc: e.target.value })} placeholder="Ilość" />
                 {targets.length > 1 && <button className="icon-btn danger" onClick={() => removeTarget(idx)}><Trash2 size={15} /></button>}
               </div>
               <LocationField
