@@ -326,7 +326,7 @@ function BatchPhotoGallery({ batchId, entries, photos, onAdd, onDelete, onError 
         ))}
         <label className="photo-thumb" style={{ width: 72, height: 72 }} aria-label="Dodaj zdjęcie partii">
           <Camera size={16} />
-          <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="visually-hidden-input" />
+          <input type="file" accept="image/*" onChange={handleFile} className="visually-hidden-input" />
         </label>
       </div>
     </>
