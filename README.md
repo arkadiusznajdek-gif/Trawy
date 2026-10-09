@@ -48,6 +48,10 @@ operacyjnych. Historia cofania istnieje tylko w bieżącej karcie i znika po jej
 odświeżeniu; zdjęcia nie są objęte cofaniem. Przywrócone dane zapisują się
 normalnie i synchronizują z Supabase.
 
+Na pulpicie jest też **Radar szkółki** z sezonowymi podpowiedziami. Można
+dodać wybraną podpowiedź do listy zadań jednym kliknięciem; wskazówki należy
+dopasować do pogody i wymagań konkretnych odmian.
+
 Przed pierwszym użyciem uruchom zawartość `database/supabase.sql` w SQL Editor
 projektu Supabase. Skrypt tworzy tabelę `app_data`, włącza Row Level Security i
 ogranicza dostęp do danych do zalogowanego właściciela. Na urządzeniu, na którym

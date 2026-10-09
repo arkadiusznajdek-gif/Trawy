@@ -71,6 +71,13 @@ export function GlobalStyle() {
       .empty-state { padding: 24px 8px; text-align: center; color: var(--ink-muted); font-size: 13.5px; }
       .section-title { display: flex; align-items: center; gap: 7px; font-family: 'Fraunces', serif; font-weight: 600; font-size: 15.5px; color: var(--brand-dark); margin-bottom: 10px; }
       .section-title.small-title { font-size: 13px; margin: 4px 0 2px; }
+      .seasonal-card { margin: 8px 0 12px; }
+      .seasonal-card .order-card-body { border-top: 0; }
+      .seasonal-title { margin-bottom: 2px; }
+      .seasonal-note { margin: 0 0 4px; }
+      .seasonal-tip { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.4; }
+      .seasonal-tip > span { flex: 1; }
+      .seasonal-tip .ghost-btn:disabled { opacity: 0.55; cursor: default; }
       .task-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 4px; }
       .task-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; text-align: left; width: 100%; }
       .task-row.custom-row { padding: 6px 8px 6px 12px; }

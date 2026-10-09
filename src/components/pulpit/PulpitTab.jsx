@@ -1,11 +1,62 @@
 import { useState } from "react";
-import { AlertTriangle, Clock, Shield, Download, Upload, X, Copy, ClipboardPaste, Search } from "lucide-react";
+import { AlertTriangle, Clock, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
 import { MONTHS } from "../../constants";
 import { money, monthKey, taskKey, computeMonthlySales, formatLogTime } from "../../utils/helpers";
 import { buildMonthTasks } from "../harmonogram/helpers";
 import { TasksSection } from "./TasksSection";
 import { plantName, batchLabel, sourceLabel } from "../magazyn/PartiePanel";
 import { daysSince } from "../magazyn/ZaleglosciPanel";
+
+const SEASONAL_TIPS = {
+  1: [
+    "Sprawdź osłony i stan przezimowania roślin w pojemnikach.",
+    "Zaplanuj podziały, przesadzenia i zakupy materiałów na nowy sezon.",
+  ],
+  2: [
+    "Przygotuj donice, etykiety i podłoże do wiosennych prac.",
+    "Po odwilży sprawdź, czy pojemniki nie stoją w wodzie.",
+  ],
+  3: [
+    "Przytnij zaschnięte liście traw przed ruszeniem nowych przyrostów; zimozielone gatunki potraktuj osobno.",
+    "Usuń chwasty z pojemników i sprawdź drożność odpływów.",
+  ],
+  4: [
+    "Przygotuj podział starszych kęp, gdy gleba rozmarznie i da się uprawiać.",
+    "Sprawdź stan zapasu donic i podłoża przed intensywną produkcją.",
+  ],
+  5: [
+    "Kontroluj wilgotność świeżo podzielonych i przesadzonych roślin.",
+    "Oznacz nowe podziały etykietami i zapisz ich lokalizację.",
+  ],
+  6: [
+    "Regularnie sprawdzaj podlewanie roślin w małych pojemnikach podczas ciepłych dni.",
+    "Przejrzyj partie pod kątem chwastów i roślin wymagających przesadzenia.",
+  ],
+  7: [
+    "W upały kontroluj wilgotność podłoża także w środku pojemników.",
+    "Zanotuj straty i sprawdź, czy przyczyną nie jest przesuszenie lub zastój wody.",
+  ],
+  8: [
+    "Zrób przegląd stanów i zaplanuj jesienne podziały oraz przesadzenia.",
+    "Uzupełnij etykiety i opisy partii przed sezonem sprzedaży.",
+  ],
+  9: [
+    "Przygotuj miejsce na jesienne przesadzenia i nowe partie.",
+    "Sprawdź, czy każda partia ma aktualną lokalizację i liczbę sztuk.",
+  ],
+  10: [
+    "Sprawdź odpływ wody z pojemników przed okresem chłodów.",
+    "Zgrupuj pojemniki w osłoniętym miejscu, uwzględniając mrozoodporność odmian.",
+  ],
+  11: [
+    "Skontroluj zimowe ustawienie pojemników i zabezpieczenie przed wiatrem.",
+    "Usuń wodę stojącą w miejscach składowania i sprawdź odpływy.",
+  ],
+  12: [
+    "Zrób kopię zapasową danych i podsumuj stany przed nowym sezonem.",
+    "Zaplanuj zakupy donic, podłoża i etykiet na kolejny rok.",
+  ],
+};
 
 /*
  * FUNKCJA DODATKOWA: Centrum uwagi — spina cztery już gotowe moduły w jeden
@@ -154,6 +205,7 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
   const sales = computeMonthlySales(orders);
   const thisMonthSales = sales.find((s) => s.year === curYear && s.month === curMonth) || { count: 0, sum: 0, countDone: 0, sumDone: 0 };
   const lowSupplies = supplies.filter((s) => s.prog != null && s.prog !== "" && Number(s.ilosc) <= Number(s.prog));
+  const seasonalTips = SEASONAL_TIPS[curMonth] || [];
 
   return (
     <div className="tab-pad">
@@ -243,6 +295,33 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
         </button>
       </div>
       <p className="hint-text" style={{ marginTop: -6 }}>Wartość kosztu magazynu korzysta z kosztów zapisanych przy zakupach i operacjach. Koszt/szt. w Cenniku jest liczony osobno z Receptury i nie uwzględnia kosztu rośliny-matecznej.</p>
+
+      <section className="order-card seasonal-card">
+        <div className="order-card-body">
+          <div className="section-title small-title seasonal-title">
+            <Sprout size={16} />
+            <span>Radar szkółki · {MONTHS[curMonth]}</span>
+          </div>
+          <p className="hint-text seasonal-note">Podpowiedzi sezonowe — dopasuj je do pogody i wymagań odmian.</p>
+          {seasonalTips.map((tip) => {
+            const alreadyAdded = tasks.some((task) => task.text === tip && task.status !== "done");
+            return (
+              <div className="seasonal-tip" key={tip}>
+                <span>{tip}</span>
+                <button
+                  className="ghost-btn small"
+                  type="button"
+                  onClick={() => onAddTask(tip)}
+                  disabled={alreadyAdded}
+                  aria-label={alreadyAdded ? "Zadanie już dodane" : `Dodaj zadanie: ${tip}`}
+                >
+                  {alreadyAdded ? "Dodano" : <><Plus size={14} /> Dodaj</>}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {lowSupplies.length > 0 && (
         <div className="alert-box">
