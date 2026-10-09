@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { AlertTriangle, Clock, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
+import { AlertTriangle, Compass, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
 import { MONTHS } from "../../constants";
-import { money, monthKey, taskKey, computeMonthlySales, formatLogTime } from "../../utils/helpers";
+import { money, monthKey, taskKey, computeMonthlySales } from "../../utils/helpers";
 import { buildMonthTasks } from "../harmonogram/helpers";
 import { TasksSection } from "./TasksSection";
 import { plantName, batchLabel, sourceLabel } from "../magazyn/PartiePanel";
 import { daysSince } from "../magazyn/ZaleglosciPanel";
+import { PRIMARY_NAV_ITEMS } from "../layout/BottomNav";
 import { findOrderShortages } from "../../utils/orderAvailability";
 
 const SEASONAL_TIPS = {
@@ -188,7 +189,7 @@ function BackupModal({ onClose, getBackupText, onImportText }) {
   );
 }
 
-export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesValue, orders, zestawy, done, customTasks, log, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
+export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesValue, orders, zestawy, done, customTasks, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
   const [backupOpen, setBackupOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchResults = searchBatches(batches || [], plants, searchQuery);
@@ -353,22 +354,31 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
 
       <TasksSection tasks={tasks} onAdd={onAddTask} onCycle={onCycleTask} onDelete={onDeleteTask} />
 
-      <div className="section-title" style={{ marginTop: 18 }}>
-        <Clock size={17} />
-        <span>Ostatnia aktywność</span>
-      </div>
-      {log.length === 0 ? (
-        <div className="empty-state">Brak zarejestrowanych zmian — historia zacznie się wypełniać, gdy zaczniesz korzystać z aplikacji.</div>
-      ) : (
-        <div className="log-list">
-          {log.slice(0, 8).map((entry) => (
-            <div key={entry.id} className="log-row">
-              <span className="log-time">{formatLogTime(entry.ts)}</span>
-              <span className="log-text">{entry.text}</span>
-            </div>
-          ))}
+      <section className="dashboard-navigation" aria-labelledby="dashboard-navigation-title">
+        <div className="section-title" id="dashboard-navigation-title">
+          <Compass size={17} />
+          <span>Przejdź do modułu</span>
         </div>
-      )}
+        <div className="dashboard-navigation-grid">
+          {PRIMARY_NAV_ITEMS.filter((item) => item.id !== "pulpit").map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                className="dashboard-navigation-item"
+                type="button"
+                onClick={() => onNavigate(item.id)}
+              >
+                <span className="dashboard-navigation-icon"><Icon size={19} /></span>
+                <span className="dashboard-navigation-copy">
+                  <strong>{item.label}</strong>
+                  <small>{item.description}</small>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <div className="section-title" style={{ marginTop: 20 }}>
         <Shield size={17} />

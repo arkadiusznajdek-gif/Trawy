@@ -1343,7 +1343,7 @@ export default function App() {
         ) : tab === "pulpit" ? (
           <PulpitTab
             plants={allPlants} inventory={inventory} potsTotal={potsTotal} magazynValue={magazynValue} salesValue={salesValue} orders={orders} zestawy={zestawy}
-            done={done} customTasks={customTasks} log={log} supplies={supplies}
+            done={done} customTasks={customTasks} supplies={supplies}
             tasks={tasks} onAddTask={addTask} onCycleTask={cycleTaskStatus} onDeleteTask={deleteTask}
             onNavigate={setTab} onExport={handleExport} onImport={handleImport}
             onGetBackupText={buildBackupJson} onImportText={applyImportText}
