@@ -34,7 +34,6 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
     () => recommendPlants(plants, { light, onlyInStock, inventory }),
     [plants, light, onlyInStock, inventory]
   );
-  const selectedIds = new Set(items.map((item) => item.plantId));
   const referencePrice = items.reduce(
     (sum, item) => sum + Number(cennik[item.plantId]?.[item.container] || 0) * Number(item.ilosc || 0),
     0
@@ -45,11 +44,41 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
     const container = resolvePotContainers(plantContainerSizes, potSizes, plant.id)[0];
     if (!quantity || !container) return;
     const suggestedQty = Math.round((quantity.min + quantity.max) / 2);
-    setItems((prev) => [...prev, { plantId: plant.id, container, ilosc: suggestedQty }]);
+    setItems((prev) => [...prev, {
+      rowId: uid("row"),
+      plantId: plant.id,
+      container,
+      ilosc: suggestedQty,
+      etykieta: `Rząd ${prev.length + 1}`,
+    }]);
   }
 
-  function updateItem(plantId, patch) {
-    setItems((prev) => prev.map((item) => item.plantId === plantId ? { ...item, ...patch } : item));
+  function addEmptyRow() {
+    const plant = plants[0];
+    if (!plant) return;
+    const container = resolvePotContainers(plantContainerSizes, potSizes, plant.id)[0];
+    if (!container) return;
+    const quantity = estimatePlantingQuantity(areaValue, plant);
+    const suggestedQty = quantity ? Math.round((quantity.min + quantity.max) / 2) : 1;
+    setItems((prev) => [...prev, {
+      rowId: uid("row"),
+      plantId: plant.id,
+      container,
+      ilosc: suggestedQty,
+      etykieta: `Rząd ${prev.length + 1}`,
+    }]);
+  }
+
+  function updateItem(rowId, patch) {
+    setItems((prev) => prev.map((item) => {
+      if (item.rowId !== rowId) return item;
+      const next = { ...item, ...patch };
+      if (patch.plantId !== undefined) {
+        const containers = resolvePotContainers(plantContainerSizes, potSizes, next.plantId);
+        if (!containers.includes(next.container)) next.container = containers[0] || potSizes[0];
+      }
+      return next;
+    }));
   }
 
   function saveComposition() {
@@ -64,7 +93,7 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
       cena: Math.max(0, Number(price) || referencePrice),
       dlugosc_mb: dimensionMode === "linear" ? lengthValue : null,
       szerokosc_m: dimensionMode === "linear" ? widthValue : null,
-      pozycje: items.map((item) => ({ ...item, etykieta: "" })),
+      pozycje: items.map(({ rowId, ...item }) => item),
     }, ...prev]);
     setItems([]);
     setName("");
@@ -121,9 +150,8 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
         <div className="empty-state">Brak odmian z podaną gęstością sadzenia dla tych warunków. Zmień nasłonecznienie albo wyłącz filtr stanu.</div>
       ) : (
         <div className="plant-list">
-          {recommendations.map((plant) => {
+          {          recommendations.map((plant) => {
             const range = estimatePlantingQuantity(areaValue, plant);
-            const inComposition = selectedIds.has(plant.id);
             return (
               <article className="order-card garden-plant-card" key={plant.id}>
                 <div className="order-card-body">
@@ -143,8 +171,8 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
                     <span className={`garden-stock ${plant.availableStock > 0 ? "in-stock" : ""}`}>
                       Stan łączny: {plant.availableStock} szt.
                     </span>
-                    <button className="secondary-btn small" type="button" disabled={inComposition || !range} onClick={() => addPlant(plant)}>
-                      <Plus size={14} /> {inComposition ? "Dodano" : "Dodaj"}
+                    <button className="secondary-btn small" type="button" disabled={!range} onClick={() => addPlant(plant)}>
+                      <Plus size={14} /> Dodaj rząd
                     </button>
                   </div>
                 </div>
@@ -159,25 +187,44 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
           <div className="order-card-body">
             <div className="section-title small-title">Twoja kompozycja ({items.length})</div>
             <p className="hint-text">Ilości są wstępną podpowiedzią katalogową — skoryguj je do projektu, odstępów i warunków na miejscu.</p>
-            {items.map((item) => {
+            {items.map((item, rowIndex) => {
               const plant = plants.find((candidate) => candidate.id === item.plantId);
               const containers = resolvePotContainers(plantContainerSizes, potSizes, item.plantId);
               return (
-                <div className="garden-composition-row" key={item.plantId}>
-                  <div className="plant-name">{plant?.nazwa_pl} — {plant?.odmiana}</div>
-                  <div className="order-item-sub">
-                    <select value={item.container} onChange={(e) => updateItem(item.plantId, { container: e.target.value })}>
-                      {containers.map((container) => <option key={container} value={container}>{container}</option>)}
-                    </select>
-                    <NumberInput inputMode="numeric" min="1" value={item.ilosc} onChange={(e) => updateItem(item.plantId, { ilosc: Math.max(1, Number(e.target.value) || 1) })} />
-                    <button className="icon-btn danger" type="button" aria-label={`Usuń ${plant?.nazwa_pl || "roślinę"}`} onClick={() => setItems((prev) => prev.filter((entry) => entry.plantId !== item.plantId))}>
+                <div className="garden-composition-row" key={item.rowId}>
+                  <div className="zestaw-row-head">
+                    <input
+                      className="row-label-input"
+                      value={item.etykieta}
+                      onChange={(e) => updateItem(item.rowId, { etykieta: e.target.value })}
+                      placeholder={`Rząd ${rowIndex + 1} (np. Tył, Środek, Przód)`}
+                      aria-label={`Nazwa rzędu ${rowIndex + 1}`}
+                    />
+                    <button
+                      className="icon-btn danger"
+                      type="button"
+                      aria-label={`Usuń rząd ${rowIndex + 1}`}
+                      onClick={() => setItems((prev) => prev.filter((entry) => entry.rowId !== item.rowId))}
+                    >
                       <Trash2 size={15} />
                     </button>
                   </div>
-                  <div className="garden-stock-note">Dostępne łącznie we wszystkich pojemnikach: {getPlantStock(inventory, item.plantId)} szt. Sprawdź stan wybranego rozmiaru przed sprzedażą.</div>
+                  <select value={item.plantId} onChange={(e) => updateItem(item.rowId, { plantId: e.target.value })}>
+                    {plants.map((option) => <option key={option.id} value={option.id}>{option.nazwa_pl} — {option.odmiana}</option>)}
+                  </select>
+                  <div className="order-item-sub">
+                    <select value={item.container} onChange={(e) => updateItem(item.rowId, { container: e.target.value })}>
+                      {containers.map((container) => <option key={container} value={container}>{container}</option>)}
+                    </select>
+                    <NumberInput inputMode="numeric" min="1" value={item.ilosc} onChange={(e) => updateItem(item.rowId, { ilosc: Math.max(1, Number(e.target.value) || 1) })} />
+                  </div>
+                  <div className="garden-stock-note">{plant?.nazwa_pl} — dostępne łącznie we wszystkich pojemnikach: {getPlantStock(inventory, item.plantId)} szt. Sprawdź stan wybranego rozmiaru przed sprzedażą.</div>
                 </div>
               );
             })}
+            <button className="ghost-btn" type="button" onClick={addEmptyRow} disabled={plants.length === 0}>
+              <Plus size={15} /> Dodaj rząd / odmianę
+            </button>
             <label className="field">
               <span>Nazwa zestawu</span>
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder={`Rabata ${dimensionMode === "linear" ? `${lengthValue || ""} mb × ${widthValue || ""} m` : `${areaValue || ""} m²`}`} />
