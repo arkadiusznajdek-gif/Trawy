@@ -39,6 +39,8 @@ const KNOWN_IMPORT_KEYS = [
 export default function App() {
   const [ready, setReady] = useState(false);
   const [tab, setTab] = useState("pulpit");
+  const [magazynJump, setMagazynJump] = useState({ section: null, location: undefined, token: 0 });
+  const [salesJump, setSalesJump] = useState({ section: null, token: 0 });
 
   const [inventory, setInventory] = useState({});
   const [cennik, setCennik] = useState({});
@@ -763,10 +765,31 @@ export default function App() {
    */
   const [jumpToBatchId, setJumpToBatchId] = useState(null);
   const [jumpToken, setJumpToken] = useState(0);
+  useEffect(() => {
+    if (tab !== "magazyn" && magazynJump.section) {
+      setMagazynJump((current) => ({ ...current, section: null }));
+    }
+  }, [tab, magazynJump.section]);
+  useEffect(() => {
+    if (tab !== "sprzedaz" && salesJump.section) {
+      setSalesJump((current) => ({ ...current, section: null }));
+    }
+  }, [tab, salesJump.section]);
+
   function jumpToBatch(batchId) {
     setTab("magazyn");
     setJumpToBatchId(batchId);
     setJumpToken((t) => t + 1);
+  }
+
+  function jumpToMagazynSection(section, location) {
+    setTab("magazyn");
+    setMagazynJump((current) => ({ section, location, token: current.token + 1 }));
+  }
+
+  function jumpToSalesSection(section) {
+    setTab("sprzedaz");
+    setSalesJump((current) => ({ section, token: current.token + 1 }));
   }
 
   function changeInventoryQty(plantId, container, nextVal) {
@@ -1326,7 +1349,10 @@ export default function App() {
           <PulpitTab
             plants={allPlants} inventory={inventory} orders={orders} zestawy={zestawy} supplies={supplies}
             tasks={tasks} onAddTask={addTask} onCycleTask={cycleTaskStatus} onDeleteTask={deleteTask}
-            onNavigate={setTab} onExport={handleExport} onImport={handleImport}
+            onExport={handleExport} onImport={handleImport}
+            onJumpToLocation={(location) => jumpToMagazynSection("gdzie", location)}
+            onJumpToMagazynSection={jumpToMagazynSection}
+            onJumpToSalesSection={jumpToSalesSection}
             onGetBackupText={buildBackupJson} onImportText={applyImportText}
             batches={batches} onJumpToBatch={jumpToBatch}
             batchSegments={batchSegments} productionPlans={productionPlans}
@@ -1354,7 +1380,7 @@ export default function App() {
             onSetSegmentQuality={setSegmentQualityH}
             productionPlans={productionPlans} onAddPlan={addProductionPlan} onSetPlanStatus={setPlanStatusH} onDeletePlan={deleteProductionPlan}
             batchPhotos={batchPhotos} onAddBatchPhoto={addBatchPhoto} onDeleteBatchPhoto={deleteBatchPhoto}
-            jumpToBatchId={jumpToBatchId} jumpToken={jumpToken}
+            jumpToBatchId={jumpToBatchId} jumpToken={jumpToken} magazynJump={magazynJump}
             overheadCosts={overheadCosts} onAddOverheadCost={addOverheadCost} onDeleteOverheadCost={deleteOverheadCost}
           />
         ) : tab === "harmonogram" ? (
@@ -1371,6 +1397,7 @@ export default function App() {
             overheadCosts={overheadCosts}
             batchSegments={batchSegments}
             batches={batches}
+            salesJump={salesJump}
           />
         ) : (
           <EtykietyTab plants={allPlants} inventory={inventory} potSizes={potSizes} batchSegments={batchSegments} batches={batches}

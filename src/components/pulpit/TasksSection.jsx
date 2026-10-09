@@ -8,8 +8,12 @@ export function TasksSection({ tasks, onAdd, onCycle, onDelete }) {
   const [date, setDate] = useState("");
   const [dateOpen, setDateOpen] = useState(false);
   const [showDone, setShowDone] = useState(false);
-  const pending = tasks.filter((t) => t.status !== "done");
+  const pending = tasks
+    .filter((t) => t.status !== "done")
+    .sort((a, b) => (a.date || "9999-12-31").localeCompare(b.date || "9999-12-31"));
   const doneTasks = tasks.filter((t) => t.status === "done");
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   function submit() {
     if (!text.trim()) return;
@@ -48,7 +52,9 @@ export function TasksSection({ tasks, onAdd, onCycle, onDelete }) {
             return (
               <div key={t.id} className="task-row custom-row">
                 {t.date && (
-                  <span className="task-date-badge"><Calendar size={11} /> {formatShortDate(t.date)}</span>
+                  <span className={`task-date-badge ${t.date < today ? "overdue" : ""}`}>
+                    <Calendar size={11} /> {t.date < today ? "Zaległe · " : ""}{formatShortDate(t.date)}
+                  </span>
                 )}
                 <button className="task-text-btn" onClick={() => onCycle(t.id)}>
                   <span className="task-plant">{t.text}</span>

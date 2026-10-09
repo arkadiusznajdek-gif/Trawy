@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CennikPanel } from "./CennikPanel";
 import { ZestawyPanel } from "./ZestawyPanel";
 import { ZamowieniaPanel } from "./ZamowieniaPanel";
@@ -6,8 +6,11 @@ import { KlienciPanel } from "./KlienciPanel";
 import { RaportyPanel } from "./RaportyPanel";
 import { ProjektantRabaty } from "./ProjektantRabaty";
 
-export function SprzedazTab({ plants, inventory, potSizes, plantContainerSizes, cennik, setCennik, costs, potRecipes, substrateCostPerL, orders, onCreateOrder, onDeleteOrder, onFulfillOrder, zestawy, setZestawy, clients, onAddClient, onDeleteClient, overheadCosts, batchSegments, batches }) {
+export function SprzedazTab({ plants, inventory, potSizes, plantContainerSizes, cennik, setCennik, costs, potRecipes, substrateCostPerL, orders, onCreateOrder, onDeleteOrder, onFulfillOrder, zestawy, setZestawy, clients, onAddClient, onDeleteClient, overheadCosts, batchSegments, batches, salesJump }) {
   const [sub, setSub] = useState("cennik");
+  useEffect(() => {
+    if (salesJump?.section) setSub(salesJump.section);
+  }, [salesJump]);
   return (
     <div className="tab-pad">
       <div className="segmented scrollable">

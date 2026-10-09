@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { containerLabel, money } from "../../utils/helpers";
 import { plantName, batchLabel, QUALITY_LABELS } from "./PartiePanel";
+import { buildLocationView, knownValueOf } from "../../utils/locationInventory";
 
 /*
  * ETAP „Co mam gdzie" (roadmapa, pkt 3): drugi ekran UI dla modelu Batch/
@@ -19,71 +20,18 @@ import { plantName, batchLabel, QUALITY_LABELS } from "./PartiePanel";
  *   znanego kosztu jednostkowego — pokazywane osobno, jawnie podpisane.
  */
 
-const BEZ_LOKALIZACJI = "__bez_lokalizacji__";
-
-export function buildLocationView(inventory, batchSegments) {
-  const groups = {}; // location key -> { location, rows: [] }
-
-  function ensureGroup(locationKey, locationLabel) {
-    if (!groups[locationKey]) groups[locationKey] = { location: locationLabel, rows: [] };
-    return groups[locationKey];
-  }
-
-  batchSegments
-    .filter((s) => s.status === "aktywny" && Number(s.ilosc || 0) > 0)
-    .forEach((s) => {
-      const key = s.location || BEZ_LOKALIZACJI;
-      const g = ensureGroup(key, s.location || null);
-      g.rows.push({
-        plantId: s.plantId, container: s.container, ilosc: Number(s.ilosc || 0),
-        kosztJednostkowy: Number(s.kosztJednostkowy || 0), batchId: s.batchId, segmentId: s.id,
-        jakosc: s.jakosc || null,
-        kind: "segment",
-      });
-    });
-
-  // "Gołe" sztuki: inventory - suma aktywnych segmentów tej odmiany+pojemnika (niezależnie od lokalizacji).
-  const segSums = {}; // plantId -> container -> qty
-  batchSegments
-    .filter((s) => s.status === "aktywny")
-    .forEach((s) => {
-      segSums[s.plantId] = segSums[s.plantId] || {};
-      segSums[s.plantId][s.container] = (segSums[s.plantId][s.container] || 0) + Number(s.ilosc || 0);
-    });
-  Object.entries(inventory).forEach(([plantId, row]) => {
-    Object.entries(row || {}).forEach(([container, qty]) => {
-      const tracked = Number(segSums[plantId]?.[container] || 0);
-      const gole = Number(qty || 0) - tracked;
-      if (gole > 0) {
-        const g = ensureGroup(BEZ_LOKALIZACJI, null);
-        g.rows.push({ plantId, container, ilosc: gole, kosztJednostkowy: null, batchId: null, segmentId: null, kind: "gole" });
-      }
-    });
-  });
-
-  const locations = Object.values(groups).map((g) => ({
-    ...g,
-    totalQty: g.rows.reduce((sum, r) => sum + r.ilosc, 0),
-  }));
-
-  locations.sort((a, b) => {
-    if (a.location === null) return 1;
-    if (b.location === null) return -1;
-    return a.location.localeCompare(b.location, "pl");
-  });
-
-  return locations;
-}
-
-export function knownValueOf(rows) {
-  return rows.reduce((sum, r) => (r.kind === "segment" ? sum + r.ilosc * r.kosztJednostkowy : sum), 0);
-}
-
-export function CoMamGdziePanel({ plants, inventory, batchSegments, batches }) {
+export function CoMamGdziePanel({ plants, inventory, batchSegments, batches, jumpToken, jumpLocation }) {
   const [filterPlantId, setFilterPlantId] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(undefined); // undefined = lista, string|null = szczegóły
 
   const allLocations = useMemo(() => buildLocationView(inventory, batchSegments), [inventory, batchSegments]);
+
+  useEffect(() => {
+    if (jumpToken) {
+      setFilterPlantId("");
+      setSelectedLocation(jumpLocation);
+    }
+  }, [jumpToken, jumpLocation]);
 
   const visibleLocations = useMemo(() => {
     if (!filterPlantId) return allLocations;

@@ -24,7 +24,7 @@ export function MagazynTab(props) {
     productionPlans, onAddPlan, onSetPlanStatus, onDeletePlan,
     batchPhotos, onAddBatchPhoto, onDeleteBatchPhoto,
     jumpToBatchId, jumpToken,
-    overheadCosts, onAddOverheadCost, onDeleteOverheadCost } = props;
+    overheadCosts, onAddOverheadCost, onDeleteOverheadCost, magazynJump } = props;
 
   // FUNKCJA DODATKOWA: przy przyjściu z wyszukiwania (Pulpit) przełącz od razu
   // na zakładkę Partie — reszta (wybór konkretnej partii) dzieje się niżej,
@@ -33,6 +33,10 @@ export function MagazynTab(props) {
     if (jumpToken) setSub("partie");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jumpToken]);
+
+  useEffect(() => {
+    if (magazynJump?.section) setSub(magazynJump.section);
+  }, [magazynJump]);
 
   return (
     <div className="tab-pad">
@@ -78,7 +82,14 @@ export function MagazynTab(props) {
           jumpToBatchId={jumpToBatchId} jumpToken={jumpToken} />
       )}
       {sub === "gdzie" && (
-        <CoMamGdziePanel plants={plants} inventory={inventory} batchSegments={batchSegments} batches={batches} />
+        <CoMamGdziePanel
+          plants={plants}
+          inventory={inventory}
+          batchSegments={batchSegments}
+          batches={batches}
+          jumpToken={magazynJump?.section === "gdzie" ? magazynJump.token : 0}
+          jumpLocation={magazynJump?.location}
+        />
       )}
       {sub === "zaleglosci" && (
         <ZaleglosciPanel plants={plants} batches={batches} batchSegments={batchSegments} />

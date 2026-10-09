@@ -54,7 +54,9 @@ dopasować do pogody i wymagań konkretnych odmian.
 
 Główne moduły są dostępne ze stałego menu u dołu ekranu. Pulpit skupia się na
 pracy operacyjnej: wyszukiwaniu partii, Centrum uwagi, zadaniach i sezonowych
-wskazówkach. Roczne podsumowania przychodów i zysku oraz szacunkowa wycena
+wskazówkach oraz skróconym stanie według lokalizacji, z wyróżnieniem roślin
+bez lokalizacji, nieśledzonych w partiach i rozbieżności ewidencji. Roczne
+podsumowania przychodów i zysku oraz szacunkowa wycena
 obecnego zapasu są dostępne w **Sprzedaż → Raporty**. Historia zmian jest
 w module Magazyn; osobna lista ostatniej aktywności nie jest wyświetlana.
 

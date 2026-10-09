@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { AlertTriangle, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
+import { AlertTriangle, MapPin, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
 import { MONTHS } from "../../constants";
 import { TasksSection } from "./TasksSection";
 import { plantName, batchLabel, sourceLabel } from "../magazyn/PartiePanel";
 import { daysSince } from "../magazyn/ZaleglosciPanel";
 import { findOrderShortages } from "../../utils/orderAvailability";
+import { buildLocationStockSummary } from "../../utils/locationInventory";
 
 const SEASONAL_TIPS = {
   1: [
@@ -74,7 +75,7 @@ export function buildAttentionCenter(now, productionPlans, batchSegments, suppli
     .map((s) => ({ ...s, daysIdle: daysSince(s.updatedAt, nowMs) }))
     .filter((s) => (s.daysIdle ?? 0) > 60)
     .sort((a, b) => (b.daysIdle || 0) - (a.daysIdle || 0));
-  const lowSupplies = (supplies || []).filter((s) => s.prog != null && Number(s.ilosc) <= Number(s.prog));
+  const lowSupplies = (supplies || []).filter((s) => s.prog != null && s.prog !== "" && Number(s.ilosc) <= Number(s.prog));
   const pendingOrders = (orders || []).filter((o) => o.status !== "zrealizowane");
   const orderShortages = findOrderShortages(pendingOrders, zestawy, inventory);
   return { plansDue, staleSegments, lowSupplies, pendingOrders, orderShortages };
@@ -186,15 +187,16 @@ function BackupModal({ onClose, getBackupText, onImportText }) {
   );
 }
 
-export function PulpitTab({ plants, inventory, orders, zestawy, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
+export function PulpitTab({ plants, inventory, orders, zestawy, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onJumpToLocation, onJumpToMagazynSection, onJumpToSalesSection, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
   const [backupOpen, setBackupOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchResults = searchBatches(batches || [], plants, searchQuery);
   const attention = buildAttentionCenter(new Date(), productionPlans, batchSegments, supplies, orders, zestawy, inventory);
-  const attentionTotal = attention.plansDue.length + attention.staleSegments.length + attention.lowSupplies.length + attention.pendingOrders.length + attention.orderShortages.length;
+  const hasAttention = attention.plansDue.length > 0 || attention.staleSegments.length > 0 ||
+    attention.lowSupplies.length > 0 || attention.pendingOrders.length > 0 || attention.orderShortages.length > 0;
+  const locationSummary = buildLocationStockSummary(inventory, batchSegments || []);
   const now = new Date();
   const curMonth = now.getMonth() + 1;
-  const lowSupplies = supplies.filter((s) => s.prog != null && s.prog !== "" && Number(s.ilosc) <= Number(s.prog));
   const seasonalTips = SEASONAL_TIPS[curMonth] || [];
 
   return (
@@ -220,18 +222,18 @@ export function PulpitTab({ plants, inventory, orders, zestawy, supplies, tasks,
         </div>
       )}
 
-      {attentionTotal > 0 && (
+      {hasAttention && (
         <div className="order-card" style={{ marginBottom: 12 }}>
           <div className="order-card-body">
-            <div className="section-title small-title" style={{ marginTop: 0 }}>Centrum uwagi ({attentionTotal})</div>
+            <div className="section-title small-title" style={{ marginTop: 0 }}>Do sprawdzenia</div>
             {attention.pendingOrders.length > 0 && (
-              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("sprzedaz")}>
+              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onJumpToSalesSection("zamowienia")}>
                 <span>Niezrealizowane zamówienia</span>
                 <span className="status-badge new">{attention.pendingOrders.length}</span>
               </button>
             )}
             {attention.orderShortages.length > 0 && (
-              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("sprzedaz")}>
+              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onJumpToSalesSection("zamowienia")}>
                 <span>Braki magazynowe do zamówień</span>
                 <span className="status-badge new">{attention.orderShortages.length}</span>
               </button>
@@ -243,33 +245,104 @@ export function PulpitTab({ plants, inventory, orders, zestawy, supplies, tasks,
                   className="order-card-head"
                   style={{ padding: "4px 0 4px 10px", fontSize: 12 }}
                   key={`${shortage.plantId}-${shortage.container}`}
-                  onClick={() => onNavigate("sprzedaz")}
+                  onClick={() => onJumpToSalesSection("zamowienia")}
                 >
                   <span>{plant ? `${plant.nazwa_pl} (${plant.odmiana})` : "Roślina"} · {shortage.container}: brakuje {shortage.shortage} szt. (potrzeba {shortage.required}, stan {shortage.available})</span>
                 </button>
               );
             })}
             {attention.plansDue.length > 0 && (
-              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("magazyn")}>
+              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onJumpToMagazynSection("plan")}>
                 <span>Plany produkcji na ten miesiąc</span>
                 <span className="status-badge new">{attention.plansDue.length}</span>
               </button>
             )}
             {attention.staleSegments.length > 0 && (
-              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("magazyn")}>
+              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onJumpToMagazynSection("zaleglosci")}>
                 <span>Segmenty bez ruchu ponad 60 dni</span>
                 <span className="status-badge new">{attention.staleSegments.length}</span>
               </button>
             )}
             {attention.lowSupplies.length > 0 && (
-              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("magazyn")}>
-                <span>Niski stan zaopatrzenia</span>
+              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onJumpToMagazynSection("zaopatrzenie")}>
+                <span>Niski stan zaopatrzenia · {attention.lowSupplies.map((supply) => supply.nazwa).join(", ")}</span>
                 <span className="status-badge new">{attention.lowSupplies.length}</span>
               </button>
             )}
           </div>
         </div>
       )}
+
+      <section className="order-card dashboard-stock">
+        <div className="order-card-body">
+          <div className="section-title small-title dashboard-stock-title">
+            <MapPin size={16} />
+            <span>Stany i lokalizacje</span>
+          </div>
+          <p className="hint-text dashboard-stock-total">
+            Stan zarejestrowany w magazynie: <strong>{locationSummary.inventoryQty} szt.</strong>
+          </p>
+          {locationSummary.locations.length > 0 ? (
+            <div className="dashboard-location-list">
+              {[...locationSummary.locations]
+                .sort((a, b) => b.totalQty - a.totalQty)
+                .slice(0, 4)
+                .map((group) => (
+                  <button
+                    className="dashboard-location-item"
+                    key={group.location}
+                    type="button"
+                    onClick={() => onJumpToLocation(group.location)}
+                  >
+                    <span>{group.location}</span>
+                    <span>{group.totalQty} szt. · {new Set(group.rows.map((row) => row.plantId)).size} odm.</span>
+                  </button>
+                ))}
+              {locationSummary.locations.length > 4 && (
+                <button className="ghost-btn small dashboard-location-more" type="button" onClick={() => onJumpToLocation()}>
+                  Pokaż wszystkie lokalizacje ({locationSummary.locations.length})
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="hint-text">Brak aktywnych partii z przypisaną lokalizacją.</p>
+          )}
+          {(locationSummary.unlocatedTrackedQty > 0 || locationSummary.untrackedQty > 0) && (
+            <button
+              className="dashboard-stock-warning"
+              type="button"
+              onClick={() => onJumpToLocation(null)}
+            >
+              Bez lokalizacji: {locationSummary.unlocatedTrackedQty} szt. w partiach
+              {locationSummary.untrackedQty > 0 ? ` · ${locationSummary.untrackedQty} szt. bez ewidencji partii` : ""}
+            </button>
+          )}
+          {locationSummary.segmentsAboveInventory.length > 0 && (
+            <button
+              className="dashboard-stock-warning"
+              type="button"
+              onClick={() => onJumpToMagazynSection("inwentaryzacja")}
+            >
+              <AlertTriangle size={14} />
+              <span>
+                Ewidencja partii przekracza stan magazynu: {locationSummary.segmentsAboveInventory.slice(0, 3).map((issue) => {
+                  const plant = plants.find((candidate) => candidate.id === issue.plantId);
+                  return `${plant ? `${plant.nazwa_pl} (${plant.odmiana})` : "Roślina"} ${issue.container} +${issue.difference} szt.`;
+                }).join(" · ")}
+                {locationSummary.segmentsAboveInventory.length > 3 ? ` · i ${locationSummary.segmentsAboveInventory.length - 3} kolejnych pozycji` : ""}
+                {" — sprawdź inwentaryzację"}
+              </span>
+            </button>
+          )}
+          {locationSummary.locations.length === 0 && locationSummary.unlocatedTrackedQty === 0 && locationSummary.untrackedQty === 0 && (
+            <button className="ghost-btn small" type="button" onClick={() => onJumpToLocation()}>
+              Otwórz „Co mam gdzie”
+            </button>
+          )}
+        </div>
+      </section>
+
+      <TasksSection tasks={tasks} onAdd={onAddTask} onCycle={onCycleTask} onDelete={onDeleteTask} />
 
       <section className="order-card seasonal-card">
         <div className="order-card-body">
@@ -297,15 +370,6 @@ export function PulpitTab({ plants, inventory, orders, zestawy, supplies, tasks,
           })}
         </div>
       </section>
-
-      {lowSupplies.length > 0 && (
-        <div className="alert-box">
-          <AlertTriangle size={15} />
-          <span>Kończy się: {lowSupplies.map((s) => s.nazwa).join(", ")}</span>
-        </div>
-      )}
-
-      <TasksSection tasks={tasks} onAdd={onAddTask} onCycle={onCycleTask} onDelete={onDeleteTask} />
 
       <div className="section-title" style={{ marginTop: 20 }}>
         <Shield size={17} />
