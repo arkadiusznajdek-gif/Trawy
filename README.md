@@ -52,6 +52,10 @@ Na pulpicie jest też **Radar szkółki** z sezonowymi podpowiedziami. Można
 dodać wybraną podpowiedź do listy zadań jednym kliknięciem; wskazówki należy
 dopasować do pogody i wymagań konkretnych odmian.
 
+**Centrum uwagi** na pulpicie zgłasza też niedobory konkretnych pojemników
+względem łącznych potrzeb z niezrealizowanych zamówień, w tym pozycji
+wchodzących w skład zestawów.
+
 W zakładce **Etykiety** podgląd pokazuje ten sam układ co wydruk. Dla zwykłych
 etykiet można wybierać widoczne pola i dopisać własny tekst. Paszport partii
 zachowuje pola A/B/C/D, pozwala dodać własną notatkę i opcjonalny QR zawierający

@@ -6,6 +6,7 @@ import { buildMonthTasks } from "../harmonogram/helpers";
 import { TasksSection } from "./TasksSection";
 import { plantName, batchLabel, sourceLabel } from "../magazyn/PartiePanel";
 import { daysSince } from "../magazyn/ZaleglosciPanel";
+import { findOrderShortages } from "../../utils/orderAvailability";
 
 const SEASONAL_TIPS = {
   1: [
@@ -65,7 +66,7 @@ const SEASONAL_TIPS = {
  * zaopatrzenia (ta sama reguła co w Zaopatrzeniu: prog!=null && ilosc<=prog)
  * i niezrealizowane zamówienia. Czysta funkcja, nic nie mutuje.
  */
-export function buildAttentionCenter(now, productionPlans, batchSegments, supplies, orders) {
+export function buildAttentionCenter(now, productionPlans, batchSegments, supplies, orders, zestawy = [], inventory = {}) {
   const nowMs = now.getTime();
   const plansDue = (productionPlans || []).filter(
     (p) => p.status === "planowane" && p.plannedYear === now.getFullYear() && p.plannedMonth === now.getMonth() + 1
@@ -77,7 +78,8 @@ export function buildAttentionCenter(now, productionPlans, batchSegments, suppli
     .sort((a, b) => (b.daysIdle || 0) - (a.daysIdle || 0));
   const lowSupplies = (supplies || []).filter((s) => s.prog != null && Number(s.ilosc) <= Number(s.prog));
   const pendingOrders = (orders || []).filter((o) => o.status !== "zrealizowane");
-  return { plansDue, staleSegments, lowSupplies, pendingOrders };
+  const orderShortages = findOrderShortages(pendingOrders, zestawy, inventory);
+  return { plansDue, staleSegments, lowSupplies, pendingOrders, orderShortages };
 }
 
 /*
@@ -186,12 +188,12 @@ function BackupModal({ onClose, getBackupText, onImportText }) {
   );
 }
 
-export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesValue, orders, done, customTasks, log, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
+export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesValue, orders, zestawy, done, customTasks, log, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
   const [backupOpen, setBackupOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchResults = searchBatches(batches || [], plants, searchQuery);
-  const attention = buildAttentionCenter(new Date(), productionPlans, batchSegments, supplies, orders);
-  const attentionTotal = attention.plansDue.length + attention.staleSegments.length + attention.lowSupplies.length + attention.pendingOrders.length;
+  const attention = buildAttentionCenter(new Date(), productionPlans, batchSegments, supplies, orders, zestawy, inventory);
+  const attentionTotal = attention.plansDue.length + attention.staleSegments.length + attention.lowSupplies.length + attention.pendingOrders.length + attention.orderShortages.length;
   const now = new Date();
   const curMonth = now.getMonth() + 1;
   const curYear = now.getFullYear();
@@ -240,6 +242,25 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
                 <span className="status-badge new">{attention.pendingOrders.length}</span>
               </button>
             )}
+            {attention.orderShortages.length > 0 && (
+              <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("sprzedaz")}>
+                <span>Braki magazynowe do zamówień</span>
+                <span className="status-badge new">{attention.orderShortages.length}</span>
+              </button>
+            )}
+            {attention.orderShortages.map((shortage) => {
+              const plant = plants.find((candidate) => candidate.id === shortage.plantId);
+              return (
+                <button
+                  className="order-card-head"
+                  style={{ padding: "4px 0 4px 10px", fontSize: 12 }}
+                  key={`${shortage.plantId}-${shortage.container}`}
+                  onClick={() => onNavigate("sprzedaz")}
+                >
+                  <span>{plant ? `${plant.nazwa_pl} (${plant.odmiana})` : "Roślina"} · {shortage.container}: brakuje {shortage.shortage} szt. (potrzeba {shortage.required}, stan {shortage.available})</span>
+                </button>
+              );
+            })}
             {attention.plansDue.length > 0 && (
               <button className="order-card-head" style={{ padding: "6px 0" }} onClick={() => onNavigate("magazyn")}>
                 <span>Plany produkcji na ten miesiąc</span>

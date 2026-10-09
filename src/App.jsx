@@ -1342,7 +1342,7 @@ export default function App() {
           <div className="loading">Wczytywanie danych…</div>
         ) : tab === "pulpit" ? (
           <PulpitTab
-            plants={allPlants} inventory={inventory} potsTotal={potsTotal} magazynValue={magazynValue} salesValue={salesValue} orders={orders}
+            plants={allPlants} inventory={inventory} potsTotal={potsTotal} magazynValue={magazynValue} salesValue={salesValue} orders={orders} zestawy={zestawy}
             done={done} customTasks={customTasks} log={log} supplies={supplies}
             tasks={tasks} onAddTask={addTask} onCycleTask={cycleTaskStatus} onDeleteTask={deleteTask}
             onNavigate={setTab} onExport={handleExport} onImport={handleImport}
