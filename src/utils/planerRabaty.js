@@ -52,3 +52,15 @@ export function estimatePlantingQuantity(areaM2, plant) {
     max: Math.max(1, Math.ceil(area * density.max)),
   };
 }
+
+export function calculatePlantingArea({ mode, areaM2, lengthM, widthM }) {
+  if (mode === "linear") {
+    const length = Number(lengthM);
+    const width = Number(widthM);
+    return Number.isFinite(length) && length > 0 && Number.isFinite(width) && width > 0
+      ? length * width
+      : 0;
+  }
+  const area = Number(areaM2);
+  return Number.isFinite(area) && area > 0 ? area : 0;
+}

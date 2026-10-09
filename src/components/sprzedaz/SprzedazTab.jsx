@@ -16,17 +16,20 @@ export function SprzedazTab({ plants, inventory, potSizes, plantContainerSizes, 
         <button className={sub === "zamowienia" ? "active" : ""} onClick={() => setSub("zamowienia")}>Zamówienia{orders.length ? ` (${orders.length})` : ""}</button>
         <button className={sub === "klienci" ? "active" : ""} onClick={() => setSub("klienci")}>Klienci{clients.length ? ` (${clients.length})` : ""}</button>
         <button className={sub === "raporty" ? "active" : ""} onClick={() => setSub("raporty")}>Raporty</button>
-        <button className={sub === "planer" ? "active" : ""} onClick={() => setSub("planer")}>Projektant rabaty</button>
       </div>
       {sub === "cennik" && <CennikPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} setCennik={setCennik} potRecipes={potRecipes} substrateCostPerL={substrateCostPerL} />}
-      {sub === "zestawy" && <ZestawyPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} zestawy={zestawy} setZestawy={setZestawy} cennik={cennik} />}
+      {sub === "zestawy" && (
+        <>
+          <ProjektantRabaty plants={plants} inventory={inventory} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} setZestawy={setZestawy} />
+          <ZestawyPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} zestawy={zestawy} setZestawy={setZestawy} cennik={cennik} />
+        </>
+      )}
       {sub === "zamowienia" && (
         <ZamowieniaPanel plants={plants} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} orders={orders} onCreateOrder={onCreateOrder}
           onDeleteOrder={onDeleteOrder} onFulfillOrder={onFulfillOrder} zestawy={zestawy} clients={clients} batches={batches} batchSegments={batchSegments} />
       )}
       {sub === "klienci" && <KlienciPanel clients={clients} orders={orders} onAdd={onAddClient} onDelete={onDeleteClient} />}
       {sub === "raporty" && <RaportyPanel orders={orders} zestawy={zestawy} costs={costs} overheadCosts={overheadCosts} plants={plants} batchSegments={batchSegments} />}
-      {sub === "planer" && <ProjektantRabaty plants={plants} inventory={inventory} potSizes={potSizes} plantContainerSizes={plantContainerSizes} cennik={cennik} setZestawy={setZestawy} />}
     </div>
   );
 }

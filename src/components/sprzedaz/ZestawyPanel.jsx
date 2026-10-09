@@ -116,7 +116,10 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
             <div key={z.id} className="order-card">
               <button className="order-card-head" onClick={() => setExpandedId(isOpen ? null : z.id)}>
                 <div>
-                  <div className="order-client">{z.nazwa}{z.dlugosc_mb ? ` · moduł ${z.dlugosc_mb} mb` : ""}</div>
+                  <div className="order-client">
+                    {z.nazwa}
+                    {z.dlugosc_mb ? ` · moduł ${z.dlugosc_mb} mb${z.szerokosc_m ? ` × ${z.szerokosc_m} m szer.` : ""}` : ""}
+                  </div>
                   <div className="order-date">{z.pozycje.length} {z.pozycje.length === 1 ? "pozycja" : "pozycji"} w zestawie</div>
                 </div>
                 <div className="order-card-right"><span className="order-sum">{money(z.cena)} zł</span></div>

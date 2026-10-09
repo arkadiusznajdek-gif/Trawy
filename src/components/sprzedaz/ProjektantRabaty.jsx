@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Flower2, Plus, Trash2 } from "lucide-react";
 import { money, resolvePotContainers, uid } from "../../utils/helpers";
-import { estimatePlantingQuantity, getPlantStock, recommendPlants } from "../../utils/planerRabaty";
+import { calculatePlantingArea, estimatePlantingQuantity, getPlantStock, recommendPlants } from "../../utils/planerRabaty";
 import { NumberInput } from "../shared/NumberInput";
 
 const LIGHT_OPTIONS = [
@@ -13,12 +13,22 @@ const LIGHT_OPTIONS = [
 
 export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSizes, cennik, setZestawy }) {
   const [area, setArea] = useState("5");
+  const [dimensionMode, setDimensionMode] = useState("area");
+  const [length, setLength] = useState("5");
+  const [width, setWidth] = useState("1");
   const [light, setLight] = useState("any");
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [items, setItems] = useState([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const areaValue = Number(area);
+  const areaValue = calculatePlantingArea({
+    mode: dimensionMode,
+    areaM2: area,
+    lengthM: length,
+    widthM: width,
+  });
+  const lengthValue = Number(length);
+  const widthValue = Number(width);
 
   const recommendations = useMemo(
     () => recommendPlants(plants, { light, onlyInStock, inventory }),
@@ -43,13 +53,17 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
   }
 
   function saveComposition() {
-    const trimmedName = name.trim() || `Rabata ${areaValue} m²`;
-    if (!items.length || !Number.isFinite(areaValue) || areaValue <= 0) return;
+    const dimensionsLabel = dimensionMode === "linear"
+      ? `${lengthValue} mb × ${widthValue} m`
+      : `${areaValue} m²`;
+    const trimmedName = name.trim() || `Rabata ${dimensionsLabel}`;
+    if (!items.length || areaValue <= 0) return;
     setZestawy((prev) => [{
       id: uid("z"),
       nazwa: trimmedName,
       cena: Math.max(0, Number(price) || referencePrice),
-      dlugosc_mb: null,
+      dlugosc_mb: dimensionMode === "linear" ? lengthValue : null,
+      szerokosc_m: dimensionMode === "linear" ? widthValue : null,
       pozycje: items.map((item) => ({ ...item, etykieta: "" })),
     }, ...prev]);
     setItems([]);
@@ -62,12 +76,32 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
       <div className="order-card garden-planner-intro">
         <div className="order-card-body">
           <div className="section-title small-title"><Flower2 size={16} /> Projektant rabaty</div>
-          <p className="hint-text">Podaj powierzchnię i nasłonecznienie. Dobiorę trawy z katalogu z podaną gęstością sadzenia, a z wybranych roślin utworzysz zestaw możliwy do użycia w zamówieniu.</p>
+          <p className="hint-text">Podaj wymiary rabaty i nasłonecznienie. Dobiorę trawy z katalogu z podaną gęstością sadzenia, a kompozycję zapiszesz od razu w zestawach do zamówień.</p>
           <div className="garden-filters">
             <label className="field">
-              <span>Powierzchnia rabaty (m²)</span>
-              <NumberInput inputMode="decimal" min="0.1" step="0.5" value={area} onChange={(e) => setArea(e.target.value)} />
+              <span>Wymiary licz jako</span>
+              <select value={dimensionMode} onChange={(e) => setDimensionMode(e.target.value)}>
+                <option value="area">Powierzchnia (m²)</option>
+                <option value="linear">Metry bieżące × szerokość</option>
+              </select>
             </label>
+            {dimensionMode === "linear" ? (
+              <>
+                <label className="field">
+                  <span>Długość (mb)</span>
+                  <NumberInput inputMode="decimal" min="0.1" step="0.1" value={length} onChange={(e) => setLength(e.target.value)} />
+                </label>
+                <label className="field">
+                  <span>Szerokość (m)</span>
+                  <NumberInput inputMode="decimal" min="0.1" step="0.1" value={width} onChange={(e) => setWidth(e.target.value)} />
+                </label>
+              </>
+            ) : (
+              <label className="field">
+                <span>Powierzchnia rabaty (m²)</span>
+                <NumberInput inputMode="decimal" min="0.1" step="0.5" value={area} onChange={(e) => setArea(e.target.value)} />
+              </label>
+            )}
             <label className="field">
               <span>Nasłonecznienie</span>
               <select value={light} onChange={(e) => setLight(e.target.value)}>
@@ -100,7 +134,11 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
                     <span>Wys. {plant.wys_szer} cm</span>
                     <span>Kwitnienie: {plant.kwitnienie}</span>
                   </div>
-                  {range && <div className="garden-quantity-hint">Na {areaValue || 0} m²: orientacyjnie {range.min}–{range.max} szt.</div>}
+                  {range && <div className="garden-quantity-hint">
+                    {dimensionMode === "linear"
+                      ? `Na ${lengthValue} mb × ${widthValue} m (${areaValue} m²): orientacyjnie ${range.min}–${range.max} szt.`
+                      : `Na ${areaValue} m²: orientacyjnie ${range.min}–${range.max} szt.`}
+                  </div>}
                   <div className="garden-plant-footer">
                     <span className={`garden-stock ${plant.availableStock > 0 ? "in-stock" : ""}`}>
                       Stan łączny: {plant.availableStock} szt.
@@ -142,7 +180,7 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
             })}
             <label className="field">
               <span>Nazwa zestawu</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={`Rabata ${areaValue || ""} m²`} />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={`Rabata ${dimensionMode === "linear" ? `${lengthValue || ""} mb × ${widthValue || ""} m` : `${areaValue || ""} m²`}`} />
             </label>
             <label className="field">
               <span>Cena zestawu — wartość wg cennika: {money(referencePrice)} zł</span>
@@ -151,7 +189,7 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
                 <span className="pln">zł</span>
               </div>
             </label>
-            <button className="primary-btn" type="button" disabled={!Number.isFinite(areaValue) || areaValue <= 0} onClick={saveComposition}>Zapisz jako zestaw do sprzedaży</button>
+            <button className="primary-btn" type="button" disabled={areaValue <= 0} onClick={saveComposition}>Zapisz w zestawach sprzedażowych</button>
           </div>
         </div>
       )}

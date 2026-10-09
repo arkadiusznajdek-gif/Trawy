@@ -167,7 +167,11 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
               ) : (
                 <>
                   <select value={it.zestawId} onChange={(e) => updateItem(idx, { zestawId: e.target.value })}>
-                    {zestawy.map((z) => <option key={z.id} value={z.id}>Zestaw: {z.nazwa}</option>)}
+                    {zestawy.map((z) => (
+                      <option key={z.id} value={z.id}>
+                        Zestaw: {z.nazwa}{z.dlugosc_mb ? ` · ${z.dlugosc_mb} mb${z.szerokosc_m ? ` × ${z.szerokosc_m} m` : ""}` : ""}
+                      </option>
+                    ))}
                   </select>
                   <div className="order-item-sub">
                     <NumberInput inputMode="decimal" min="0.1" step="0.1" value={it.ilosc} onChange={(e) => updateItem(idx, { ilosc: e.target.value })} placeholder="Ilość" />
@@ -179,7 +183,12 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
                   </div>
                   {(() => {
                     const z = zestawy.find((zz) => zz.id === it.zestawId);
-                    return z?.dlugosc_mb ? <p className="hint-text" style={{ margin: "2px 0 0" }}>= {(Number(it.ilosc || 0) * z.dlugosc_mb).toFixed(1)} mb</p> : null;
+                    return z?.dlugosc_mb ? (
+                      <p className="hint-text" style={{ margin: "2px 0 0" }}>
+                        = {(Number(it.ilosc || 0) * z.dlugosc_mb).toFixed(1)} mb
+                        {z.szerokosc_m ? ` · szerokość ${z.szerokosc_m} m` : ""}
+                      </p>
+                    ) : null;
                   })()}
                 </>
               )}
@@ -225,7 +234,10 @@ export function ZamowieniaPanel({ plants, potSizes, plantContainerSizes, cennik,
                     const z = it.kind === "zestaw" ? zestawy.find((zz) => zz.id === it.zestawId) : null;
                     return (
                       <div key={i} className="order-line">
-                        <span>{it.nazwa || labelFor(it)} × {it.ilosc}{z?.dlugosc_mb ? ` (${(Number(it.ilosc || 0) * z.dlugosc_mb).toFixed(1)} mb)` : ""}</span>
+                        <span>
+                          {it.nazwa || labelFor(it)} × {it.ilosc}
+                          {z?.dlugosc_mb ? ` (${(Number(it.ilosc || 0) * z.dlugosc_mb).toFixed(1)} mb${z.szerokosc_m ? ` × ${z.szerokosc_m} m` : ""})` : ""}
+                        </span>
                         <span>{money(it.ilosc * it.cena)} zł</span>
                       </div>
                     );

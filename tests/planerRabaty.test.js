@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PLANTS } from "../src/data/plants.js";
-import { estimatePlantingQuantity, getPlantStock, recommendPlants } from "../src/utils/planerRabaty.js";
+import { calculatePlantingArea, estimatePlantingQuantity, getPlantStock, recommendPlants } from "../src/utils/planerRabaty.js";
 
 test("recommendations match sun and partial shade from plant descriptions", () => {
   const sunny = recommendPlants(PLANTS, { light: "slonce" });
@@ -23,6 +23,19 @@ test("planting quantities scale the catalog density to the requested area", () =
   assert.deepEqual(estimatePlantingQuantity(4, plant), { min: 8, max: 12 });
   assert.equal(estimatePlantingQuantity(0, plant), null);
   assert.equal(estimatePlantingQuantity(4, { gestosc_brak: true }), null);
+});
+
+test("linear dimensions convert to square meters for planting estimates", () => {
+  assert.equal(calculatePlantingArea({ mode: "linear", lengthM: 8, widthM: 1.5 }), 12);
+  assert.equal(calculatePlantingArea({ mode: "linear", lengthM: 8, widthM: 0 }), 0);
+  assert.equal(calculatePlantingArea({ mode: "area", areaM2: 6 }), 6);
+  assert.deepEqual(
+    estimatePlantingQuantity(calculatePlantingArea({ mode: "linear", lengthM: 8, widthM: 1.5 }), {
+      gestosc_m2_min: 2,
+      gestosc_m2_max: 3,
+    }),
+    { min: 24, max: 36 }
+  );
 });
 
 test("recommendations can be restricted to plants with stock", () => {
