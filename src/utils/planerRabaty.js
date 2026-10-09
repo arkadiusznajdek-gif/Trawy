@@ -28,6 +28,41 @@ function heightValue(plant) {
   return match ? Number(match[0].replace(",", ".")) : 0;
 }
 
+export function getPlantSpreadMeters(plant) {
+  const spreadText = String(plant?.wys_szer || "").split("/")[1] || "";
+  const values = [...spreadText.matchAll(/\d+(?:[.,]\d+)?/g)]
+    .map((match) => Number(match[0].replace(",", ".")))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  return values.length ? Math.max(...values) / 100 : null;
+}
+
+export function getRemainingBedWidth(widthM, items, plants, excludedRowId = null) {
+  if (widthM == null || widthM === "") return null;
+  const width = Number(widthM);
+  if (!Number.isFinite(width) || width <= 0) return 0;
+  const occupiedWidth = items.reduce((sum, item, index) => {
+    if (item.rowId === excludedRowId || index === excludedRowId) return sum;
+    const plant = plants.find((candidate) => candidate.id === item.plantId);
+    const spread = getPlantSpreadMeters(plant);
+    return sum + (spread ?? width);
+  }, 0);
+  return Math.max(0, Math.round((width - occupiedWidth) * 100) / 100);
+}
+
+export function plantFitsBedWidth(plant, availableWidthM) {
+  if (availableWidthM == null) return true;
+  const spread = getPlantSpreadMeters(plant);
+  return spread != null && spread <= availableWidthM + 0.000001;
+}
+
+export function calculatePlantRowArea(bedAreaM2, bedWidthM, plant) {
+  const area = Number(bedAreaM2);
+  const width = Number(bedWidthM);
+  const spread = getPlantSpreadMeters(plant);
+  if (!Number.isFinite(area) || area <= 0 || !Number.isFinite(width) || width <= 0 || spread == null) return 0;
+  return area * spread / width;
+}
+
 export function getPlantStock(inventory, plantId) {
   return Object.values(inventory?.[plantId] || {}).reduce((sum, qty) => {
     const value = Number(qty);

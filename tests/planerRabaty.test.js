@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PLANTS } from "../src/data/plants.js";
-import { calculatePlantingArea, estimatePlantingQuantity, getPlantStock, recommendPlants } from "../src/utils/planerRabaty.js";
+import { calculatePlantRowArea, calculatePlantingArea, estimatePlantingQuantity, getPlantSpreadMeters, getRemainingBedWidth, getPlantStock, plantFitsBedWidth, recommendPlants } from "../src/utils/planerRabaty.js";
 
 test("recommendations match sun and partial shade from plant descriptions", () => {
   const sunny = recommendPlants(PLANTS, { light: "slonce" });
@@ -36,6 +36,27 @@ test("linear dimensions convert to square meters for planting estimates", () => 
     }),
     { min: 24, max: 36 }
   );
+});
+
+test("plant spread filters varieties using the remaining bed width", () => {
+  const giant = PLANTS.find((plant) => plant.odmiana === "Miscanthus giganteus");
+  const milos = PLANTS.find((plant) => plant.odmiana.includes("'Milos'"));
+  const zebra = PLANTS.find((plant) => plant.odmiana.includes("'Zebrinus'"));
+  const compact = { id: "compact", wys_szer: "40–50 / 40–50" };
+  const plants = [...PLANTS, compact];
+  const rows = [{ rowId: "back", plantId: milos.id }];
+
+  assert.equal(getPlantSpreadMeters(giant), 1.5);
+  assert.equal(plantFitsBedWidth(giant, 0.5), false);
+  assert.equal(getRemainingBedWidth(2, rows, plants), 1);
+  assert.equal(getRemainingBedWidth(2, [{ plantId: milos.id }, { plantId: compact.id }], plants, 0), 1.5);
+  assert.equal(getPlantSpreadMeters(zebra), 1.2);
+  assert.equal(plantFitsBedWidth(zebra, 1), false);
+  assert.equal(plantFitsBedWidth(compact, 1), true);
+  assert.equal(plantFitsBedWidth(giant, 2), true);
+  assert.equal(plantFitsBedWidth({ wys_szer: "300 / Duża" }, 2), false);
+  assert.equal(plantFitsBedWidth(zebra, 1.3), true);
+  assert.equal(calculatePlantRowArea(5, 2, milos), 2.5);
 });
 
 test("recommendations can be restricted to plants with stock", () => {

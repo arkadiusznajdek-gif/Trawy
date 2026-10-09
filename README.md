@@ -62,8 +62,11 @@ wymaganych na paszporcie; przed użyciem handlowym zweryfikuj wzór z PIORiN.
 W **Sprzedaż → Zestawy** projektant rabaty jest połączony z listą zestawów
 sprzedażowych. Można podać powierzchnię w m² albo długość w metrach bieżących
 i szerokość, filtrować odmiany według nasłonecznienia oraz zapisać kompozycję
-jako zestaw dostępny przy tworzeniu zamówienia. To podpowiedź planistyczna, nie
-projekt wykonawczy; przed sprzedażą sprawdź stan wybranego rozmiaru pojemnika.
+jako zestaw dostępny przy tworzeniu zamówienia. Dobór uwzględnia maksymalną
+szerokość dojrzałych roślin i zawęża listę przy kolejnych rzędach; orientacyjna
+liczba sztuk jest liczona dla powierzchni przypisanej do rzędu. To podpowiedź
+planistyczna, nie projekt wykonawczy; przed sprzedażą sprawdź stan wybranego
+rozmiaru pojemnika.
 
 Przed pierwszym użyciem uruchom zawartość `database/supabase.sql` w SQL Editor
 projektu Supabase. Skrypt tworzy tabelę `app_data`, włącza Row Level Security i

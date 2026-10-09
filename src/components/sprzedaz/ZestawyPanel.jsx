@@ -3,6 +3,7 @@ import { Boxes, Plus, Trash2, Calculator as CalcIcon } from "lucide-react";
 import { clampInt, money, resolvePotContainers, uid } from "../../utils/helpers";
 import { PlantingCalculator } from "../shared/PlantingCalculator";
 import { NumberInput } from "../shared/NumberInput";
+import { getPlantSpreadMeters, getRemainingBedWidth, plantFitsBedWidth } from "../../utils/planerRabaty";
 
 export function emptyZestawItem(plants, potSizes) {
   return { plantId: plants[0] ? plants[0].id : "", container: potSizes && potSizes[0] ? potSizes[0] : "P9", ilosc: "", etykieta: "" };
@@ -13,12 +14,13 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
   const [nazwa, setNazwa] = useState("");
   const [cena, setCena] = useState("");
   const [modulMb, setModulMb] = useState("");
+  const [szerokosc, setSzerokosc] = useState("");
   const [items, setItems] = useState([emptyZestawItem(plants, potSizes)]);
   const [confirmingId, setConfirmingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [calcOpenIdx, setCalcOpenIdx] = useState(null);
 
-  function resetForm() { setNazwa(""); setCena(""); setModulMb(""); setItems([emptyZestawItem(plants, potSizes)]); setFormOpen(false); setCalcOpenIdx(null); }
+  function resetForm() { setNazwa(""); setCena(""); setModulMb(""); setSzerokosc(""); setItems([emptyZestawItem(plants, potSizes)]); setFormOpen(false); setCalcOpenIdx(null); }
   function updateItem(idx, patch) {
     setItems((prev) => prev.map((it, i) => {
       if (i !== idx) return it;
@@ -30,7 +32,15 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
       return next;
     }));
   }
-  function addItem() { setItems((prev) => [...prev, emptyZestawItem(plants, potSizes)]); }
+  function addItem() {
+    const room = getRemainingBedWidth(szerokoscNum, items, plants);
+    const plant = plants.find((candidate) => plantFitsBedWidth(candidate, room));
+    if (!plant) return;
+    const item = emptyZestawItem([plant], potSizes);
+    const containers = resolvePotContainers(plantContainerSizes, potSizes, plant.id);
+    item.container = containers[0] || item.container;
+    setItems((prev) => [...prev, item]);
+  }
   function removeItem(idx) { setItems((prev) => prev.filter((_, i) => i !== idx)); if (calcOpenIdx === idx) setCalcOpenIdx(null); }
 
   const referenceValue = items.reduce((s, it) => {
@@ -38,12 +48,18 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
     return s + cn * Number(it.ilosc || 0);
   }, 0);
   const modulMbNum = Number(modulMb) > 0 ? Number(modulMb) : null;
+  const szerokoscNum = Number(szerokosc) > 0 ? Number(szerokosc) : null;
+  const itemsFitWidth = !szerokoscNum || items.every((item, index) => {
+    const room = getRemainingBedWidth(szerokoscNum, items, plants, index);
+    return plantFitsBedWidth(plants.find((plant) => plant.id === item.plantId), room);
+  });
 
   function saveZestaw() {
-    if (!nazwa.trim() || items.length === 0 || items.some((it) => clampInt(it.ilosc, 0) <= 0)) return;
+    if (!nazwa.trim() || items.length === 0 || !itemsFitWidth || items.some((it) => clampInt(it.ilosc, 0) <= 0)) return;
     const z = {
       id: uid("z"), nazwa: nazwa.trim(), cena: Math.max(0, Number(cena) || 0),
       dlugosc_mb: modulMbNum,
+      szerokosc_m: szerokoscNum,
       pozycje: items.map((it) => ({ ...it, ilosc: clampInt(it.ilosc, 1) })),
     };
     setZestawy((prev) => [z, ...prev]);
@@ -62,14 +78,29 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
             <span>Długość modułu (mb) — opcjonalnie</span>
             <NumberInput inputMode="decimal" min="0" step="0.1" value={modulMb} onChange={(e) => setModulMb(e.target.value)} placeholder="np. 2" />
           </label>
+          <label className="field">
+            <span>Szerokość rabaty (m) — opcjonalnie</span>
+            <NumberInput inputMode="decimal" min="0" step="0.1" value={szerokosc} onChange={(e) => setSzerokosc(e.target.value)} placeholder="np. 2" />
+          </label>
           <p className="hint-text" style={{ margin: "0 0 4px" }}>
             {modulMbNum
               ? `Wszystkie rzędy poniżej liczone są dla ${modulMbNum} mb — kalkulator sam podpowie ilość dla każdej odmiany. Przy zamówieniu wpiszesz mnożnik (np. 4,5 × ${modulMbNum} mb = ${(modulMbNum * 4.5).toFixed(1)} mb).`
               : "Podaj długość modułu, żeby kalkulator w każdym rzędzie liczył automatycznie tę samą długość (bez wpisywania jej za każdym razem). Zostaw puste, jeśli zestaw nie jest modułowy (np. gotowy zestaw doniczkowy)."}
           </p>
+          {szerokoscNum && (
+            <p className="hint-text" style={{ margin: "0 0 4px" }}>
+              Pozostała szerokość: <b>{getRemainingBedWidth(szerokoscNum, items, plants).toFixed(2)} m</b>. Po wybraniu rośliny lista kolejnych odmian ograniczy się do mieszczących się w pozostałym miejscu.
+            </p>
+          )}
           {items.map((it, idx) => {
             const plant = plants.find((p) => p.id === it.plantId);
             const calcOpen = calcOpenIdx === idx;
+            const remainingForRow = getRemainingBedWidth(szerokoscNum, items, plants, idx);
+            const fittingPlants = plants.filter((candidate) =>
+              plantFitsBedWidth(candidate, remainingForRow) || candidate.id === it.plantId
+            );
+            const currentSpread = getPlantSpreadMeters(plant);
+            const rowFits = !szerokoscNum || (currentSpread != null && currentSpread <= remainingForRow + 0.000001);
             return (
               <div key={idx} className="order-item-row zestaw-row">
                 <div className="zestaw-row-head">
@@ -77,8 +108,21 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
                   {items.length > 1 && <button className="icon-btn danger" onClick={() => removeItem(idx)}><Trash2 size={15} /></button>}
                 </div>
                 <select value={it.plantId} onChange={(e) => updateItem(idx, { plantId: e.target.value })}>
-                  {plants.map((p) => <option key={p.id} value={p.id}>{p.nazwa_pl} — {p.odmiana}</option>)}
+                  {fittingPlants.map((p) => {
+                    const spread = getPlantSpreadMeters(p);
+                    const fits = plantFitsBedWidth(p, remainingForRow);
+                    return (
+                      <option key={p.id} value={p.id} disabled={!fits && p.id !== it.plantId}>
+                        {p.nazwa_pl} — {p.odmiana}{szerokoscNum ? ` · ${spread == null ? "brak danych o szerokości" : `${Math.round(spread * 100)} cm`}${fits ? "" : " · za szeroka"}` : ""}
+                      </option>
+                    );
+                  })}
                 </select>
+                {szerokoscNum && !rowFits && (
+                  <p className="price-warning">
+                    Ten rząd przekracza dostępne miejsce lub brakuje danych o szerokości rośliny. Zmień odmianę albo szerokość rabaty.
+                  </p>
+                )}
                 <div className="order-item-sub">
                   <select value={it.container} onChange={(e) => updateItem(idx, { container: e.target.value })}>
                     {resolvePotContainers(plantContainerSizes, potSizes, it.plantId).map((c) => <option key={c} value={c}>{c}</option>)}
@@ -94,7 +138,13 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
               </div>
             );
           })}
-          <button className="ghost-btn" onClick={addItem}><Plus size={15} /> Dodaj rząd / odmianę</button>
+          <button
+            className="ghost-btn"
+            onClick={addItem}
+            disabled={szerokoscNum != null && !plants.some((plant) => plantFitsBedWidth(plant, getRemainingBedWidth(szerokoscNum, items, plants)))}
+          >
+            <Plus size={15} /> Dodaj rząd / odmianę
+          </button>
           <label className="field">
             <span>Cena zestawu (wartość wg cennika: {money(referenceValue)} zł)</span>
             <div className="price-input-wrap">
@@ -104,7 +154,7 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
           </label>
           <div className="form-actions">
             <button className="secondary-btn" onClick={resetForm}>Anuluj</button>
-            <button className="primary-btn" disabled={!nazwa.trim() || items.some((it) => clampInt(it.ilosc, 0) <= 0)} onClick={saveZestaw}>Zapisz zestaw</button>
+            <button className="primary-btn" disabled={!nazwa.trim() || !itemsFitWidth || items.some((it) => clampInt(it.ilosc, 0) <= 0)} onClick={saveZestaw}>Zapisz zestaw</button>
           </div>
         </div>
       )}
@@ -118,7 +168,8 @@ export function ZestawyPanel({ plants, potSizes, plantContainerSizes, zestawy, s
                 <div>
                   <div className="order-client">
                     {z.nazwa}
-                    {z.dlugosc_mb ? ` · moduł ${z.dlugosc_mb} mb${z.szerokosc_m ? ` × ${z.szerokosc_m} m szer.` : ""}` : ""}
+                      {z.dlugosc_mb ? ` · moduł ${z.dlugosc_mb} mb` : ""}
+                      {z.szerokosc_m ? ` · szer. ${z.szerokosc_m} m` : ""}
                   </div>
                   <div className="order-date">{z.pozycje.length} {z.pozycje.length === 1 ? "pozycja" : "pozycji"} w zestawie</div>
                 </div>
