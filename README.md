@@ -59,6 +59,12 @@ te pola jako tekst do skanowania offline. Ustawienia etykiet synchronizują się
 i trafiają do kopii zapasowej. Kod QR jest dodatkiem, nie zamiennikiem danych
 wymaganych na paszporcie; przed użyciem handlowym zweryfikuj wzór z PIORiN.
 
+W **Sprzedaż → Projektant rabaty** można filtrować odmiany według
+nasłonecznienia i powierzchni, zobaczyć orientacyjną liczbę roślin wynikającą
+z katalogowej gęstości sadzenia oraz zapisać wybrane pozycje jako zestaw
+dostępny przy tworzeniu zamówienia. To podpowiedź planistyczna, nie projekt
+wykonawczy; przed sprzedażą sprawdź stan wybranego rozmiaru pojemnika.
+
 Przed pierwszym użyciem uruchom zawartość `database/supabase.sql` w SQL Editor
 projektu Supabase. Skrypt tworzy tabelę `app_data`, włącza Row Level Security i
 ogranicza dostęp do danych do zalogowanego właściciela. Na urządzeniu, na którym

@@ -1381,7 +1381,7 @@ export default function App() {
             tasks={tasks} onCycleTask={cycleTaskStatus} batchSegments={batchSegments} batches={batches} />
         ) : tab === "sprzedaz" ? (
           <SprzedazTab
-            plants={allPlants} potSizes={potSizes} plantContainerSizes={plantContainerSizes}
+            plants={allPlants} inventory={inventory} potSizes={potSizes} plantContainerSizes={plantContainerSizes}
             cennik={cennik} setCennik={setCennik} costs={costs} potRecipes={potRecipes}
             substrateCostPerL={substrateCostPerL}
             orders={orders} onCreateOrder={createOrder} onDeleteOrder={deleteOrderH} onFulfillOrder={fulfillOrderH}

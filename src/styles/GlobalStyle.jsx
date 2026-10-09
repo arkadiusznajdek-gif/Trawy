@@ -119,6 +119,22 @@ export function GlobalStyle() {
       .cost-margin-label { font-weight: 700; font-size: 12px; width: 32px; flex-shrink: 0; }
       .margin-badge { font-size: 11px; font-weight: 600; color: var(--brand); margin-left: auto; white-space: nowrap; }
       .margin-badge.neg { color: var(--rust); }
+      .garden-planner { margin-top: 12px; }
+      .garden-planner-intro { margin-bottom: 12px; }
+      .garden-planner-intro .order-card-body { border-top: 0; }
+      .garden-filters { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
+      .garden-stock-filter { margin: 2px 0 0; }
+      .garden-section-title { margin-top: 14px; }
+      .garden-plant-card .order-card-body { border-top: 0; padding: 11px 12px; }
+      .garden-plant-info { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--ink-muted); font-size: 11px; line-height: 1.4; }
+      .garden-quantity-hint { color: var(--brand-dark); font-size: 12px; font-weight: 600; margin-top: 3px; }
+      .garden-plant-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+      .garden-stock, .garden-stock-note { color: var(--ink-muted); font-size: 11px; }
+      .garden-stock.in-stock { color: var(--brand-dark); font-weight: 600; }
+      .garden-composition { margin-top: 14px; }
+      .garden-composition-row { border-top: 1px solid var(--line); padding: 8px 0; }
+      .garden-composition-row .order-item-sub { margin-top: 5px; }
+      .garden-stock-note { margin-top: 4px; }
       .division-banner { display: flex; flex-direction: column; gap: 8px; background: var(--gold-soft); border: 1px solid #DEC57F; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #6B4F12; }
       .status-tag { border: none; cursor: pointer; }
       .status-todo { background: var(--surface-2); color: var(--ink-muted); border: 1px solid var(--line); }
