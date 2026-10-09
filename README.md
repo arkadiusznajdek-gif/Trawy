@@ -52,9 +52,9 @@ Na pulpicie jest też **Radar szkółki** z sezonowymi podpowiedziami. Można
 dodać wybraną podpowiedź do listy zadań jednym kliknięciem; wskazówki należy
 dopasować do pogody i wymagań konkretnych odmian.
 
-Główne moduły są dostępne ze stałego menu u dołu ekranu i ze skrótów
-**Przejdź do modułu** na pulpicie. Historia zmian jest w module Magazyn;
-pulpit nie pokazuje już osobnej listy ostatniej aktywności.
+Główne moduły są dostępne ze stałego menu u dołu ekranu. Pulpit zawiera
+podsumowania i kontekstowe skróty do powiązanych danych; historia zmian jest
+w module Magazyn, a osobna lista ostatniej aktywności nie jest wyświetlana.
 
 **Centrum uwagi** na pulpicie zgłasza też niedobory konkretnych pojemników
 względem łącznych potrzeb z niezrealizowanych zamówień, w tym pozycji

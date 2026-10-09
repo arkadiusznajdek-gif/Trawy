@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { AlertTriangle, Compass, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
+import { AlertTriangle, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
 import { MONTHS } from "../../constants";
 import { money, monthKey, taskKey, computeMonthlySales } from "../../utils/helpers";
 import { buildMonthTasks } from "../harmonogram/helpers";
 import { TasksSection } from "./TasksSection";
 import { plantName, batchLabel, sourceLabel } from "../magazyn/PartiePanel";
 import { daysSince } from "../magazyn/ZaleglosciPanel";
-import { PRIMARY_NAV_ITEMS } from "../layout/BottomNav";
 import { findOrderShortages } from "../../utils/orderAvailability";
 
 const SEASONAL_TIPS = {
@@ -353,32 +352,6 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
       )}
 
       <TasksSection tasks={tasks} onAdd={onAddTask} onCycle={onCycleTask} onDelete={onDeleteTask} />
-
-      <section className="dashboard-navigation" aria-labelledby="dashboard-navigation-title">
-        <div className="section-title" id="dashboard-navigation-title">
-          <Compass size={17} />
-          <span>Przejdź do modułu</span>
-        </div>
-        <div className="dashboard-navigation-grid">
-          {PRIMARY_NAV_ITEMS.filter((item) => item.id !== "pulpit").map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                className="dashboard-navigation-item"
-                type="button"
-                onClick={() => onNavigate(item.id)}
-              >
-                <span className="dashboard-navigation-icon"><Icon size={19} /></span>
-                <span className="dashboard-navigation-copy">
-                  <strong>{item.label}</strong>
-                  <small>{item.description}</small>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
 
       <div className="section-title" style={{ marginTop: 20 }}>
         <Shield size={17} />
