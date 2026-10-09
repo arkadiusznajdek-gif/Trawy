@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Flower2, Plus, Trash2 } from "lucide-react";
 import { money, resolvePotContainers, uid } from "../../utils/helpers";
-import { calculatePlantRowArea, calculatePlantingArea, estimatePlantingQuantity, getPlantStock, getPlantSpreadMeters, getRemainingBedWidth, plantFitsBedWidth, recommendPlants } from "../../utils/planerRabaty";
+import { calculatePlantRowArea, calculatePlantingArea, estimatePlantingQuantity, getPlantMoistureClass, getPlantStock, getPlantSpreadMeters, getRemainingBedWidth, plantFitsBedWidth, recommendPlants } from "../../utils/planerRabaty";
 import { NumberInput } from "../shared/NumberInput";
 
 const LIGHT_OPTIONS = [
@@ -11,12 +11,20 @@ const LIGHT_OPTIONS = [
   { value: "cien", label: "Cień" },
 ];
 
+const MOISTURE_OPTIONS = [
+  { value: "any", label: "Dowolne" },
+  { value: "dry", label: "Suche / przepuszczalne" },
+  { value: "average", label: "Umiarkowanie wilgotne" },
+  { value: "wet", label: "Wilgotne / stale wilgotne" },
+];
+
 export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSizes, cennik, setZestawy }) {
   const [area, setArea] = useState("5");
   const [dimensionMode, setDimensionMode] = useState("area");
   const [length, setLength] = useState("5");
   const [width, setWidth] = useState("1");
   const [light, setLight] = useState("any");
+  const [moisture, setMoisture] = useState("any");
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [items, setItems] = useState([]);
   const [name, setName] = useState("");
@@ -38,8 +46,8 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
   }, 0) > bedWidthValue + 0.000001;
 
   const allRecommendations = useMemo(
-    () => recommendPlants(plants, { light, onlyInStock, inventory }),
-    [plants, light, onlyInStock, inventory]
+    () => recommendPlants(plants, { light, moisture, onlyInStock, inventory }),
+    [plants, light, moisture, onlyInStock, inventory]
   );
   const recommendations = allRecommendations.filter((plant) => plantFitsBedWidth(plant, remainingWidth));
   const referencePrice = items.reduce(
@@ -160,6 +168,12 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
                 {LIGHT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
               </select>
             </label>
+            <label className="field">
+              <span>Wilgotność gleby</span>
+              <select value={moisture} onChange={(e) => setMoisture(e.target.value)}>
+                {MOISTURE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
           </div>
           <label className="checkbox-field garden-stock-filter">
             <input type="checkbox" checked={onlyInStock} onChange={(e) => setOnlyInStock(e.target.checked)} />
@@ -198,6 +212,9 @@ export function ProjektantRabaty({ plants, inventory, potSizes, plantContainerSi
                     <span>Wys./szer. {plant.wys_szer} cm</span>
                     <span>Kwitnienie: {plant.kwitnienie}</span>
                   </div>
+                  {getPlantMoistureClass(plant) === "unspecified" && (
+                    <div className="garden-stock-note">Katalog nie określa jasno wilgotności gleby — sprawdź wymagania przed doborem.</div>
+                  )}
                   {range && <div className="garden-quantity-hint">
                     {dimensionMode === "linear"
                       ? `Na ${lengthValue} mb × ${widthValue} m (${areaValue} m²): orientacyjnie ${range.min}–${range.max} szt.`

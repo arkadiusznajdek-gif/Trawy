@@ -64,9 +64,10 @@ sprzedażowych. Można podać powierzchnię w m² albo długość w metrach bie�
 i szerokość, filtrować odmiany według nasłonecznienia oraz zapisać kompozycję
 jako zestaw dostępny przy tworzeniu zamówienia. Dobór uwzględnia maksymalną
 szerokość dojrzałych roślin i zawęża listę przy kolejnych rzędach; orientacyjna
-liczba sztuk jest liczona dla powierzchni przypisanej do rzędu. To podpowiedź
-planistyczna, nie projekt wykonawczy; przed sprzedażą sprawdź stan wybranego
-rozmiaru pojemnika.
+liczba sztuk jest liczona dla powierzchni przypisanej do rzędu. Można też
+filtrować według wilgotności gleby; niejednoznaczne opisy katalogowe są
+oznaczane do ręcznego sprawdzenia. To podpowiedź planistyczna, nie projekt
+wykonawczy; przed sprzedażą sprawdź stan wybranego rozmiaru pojemnika.
 
 Przed pierwszym użyciem uruchom zawartość `database/supabase.sql` w SQL Editor
 projektu Supabase. Skrypt tworzy tabelę `app_data`, włącza Row Level Security i

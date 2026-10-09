@@ -14,6 +14,21 @@ function matchesLight(plant, light) {
   return true;
 }
 
+export function getPlantMoistureClass(plant) {
+  const text = normalize(plant?.stanowisko);
+  if (/\b(kazda|kazdy|kazde|nawet sucha)\b/.test(text)) return "flexible";
+  if (/bardzo wilgot|stale wilgot|bagnisk|mok|row\b/.test(text)) return "wet";
+  if (/sucha|suchy|suchej|suchym|umiarkowanie such/.test(text)) return "dry";
+  if (/umiarkowanie wilgot|przecietna ogrodowa|wilgotna|wilgotne|wilgotny/.test(text)) return "average";
+  return "unspecified";
+}
+
+function matchesMoisture(plant, moisture) {
+  if (moisture === "any") return true;
+  const plantMoisture = getPlantMoistureClass(plant);
+  return plantMoisture === "unspecified" || plantMoisture === "flexible" || plantMoisture === moisture;
+}
+
 function densityRange(plant) {
   const min = Number(plant.gestosc_m2_min);
   const max = Number(plant.gestosc_m2_max);
@@ -70,9 +85,9 @@ export function getPlantStock(inventory, plantId) {
   }, 0);
 }
 
-export function recommendPlants(plants, { light = "any", onlyInStock = false, inventory = {} } = {}) {
+export function recommendPlants(plants, { light = "any", moisture = "any", onlyInStock = false, inventory = {} } = {}) {
   return plants
-    .filter((plant) => densityRange(plant) && matchesLight(plant, light))
+    .filter((plant) => densityRange(plant) && matchesLight(plant, light) && matchesMoisture(plant, moisture))
     .map((plant) => ({ ...plant, availableStock: getPlantStock(inventory, plant.id) }))
     .filter((plant) => !onlyInStock || plant.availableStock > 0)
     .sort((a, b) => heightValue(b) - heightValue(a) || a.nazwa_pl.localeCompare(b.nazwa_pl, "pl"));

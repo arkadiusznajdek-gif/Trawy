@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PLANTS } from "../src/data/plants.js";
-import { calculatePlantRowArea, calculatePlantingArea, estimatePlantingQuantity, getPlantSpreadMeters, getRemainingBedWidth, getPlantStock, plantFitsBedWidth, recommendPlants } from "../src/utils/planerRabaty.js";
+import { calculatePlantRowArea, calculatePlantingArea, estimatePlantingQuantity, getPlantMoistureClass, getPlantSpreadMeters, getRemainingBedWidth, getPlantStock, plantFitsBedWidth, recommendPlants } from "../src/utils/planerRabaty.js";
 
 test("recommendations match sun and partial shade from plant descriptions", () => {
   const sunny = recommendPlants(PLANTS, { light: "slonce" });
@@ -11,6 +11,23 @@ test("recommendations match sun and partial shade from plant descriptions", () =
   assert.ok(sunny.every((plant) => /słońce/i.test(plant.stanowisko)));
   assert.ok(partial.length > 0);
   assert.ok(partial.every((plant) => /półcień/i.test(plant.stanowisko)));
+});
+
+test("moisture filtering distinguishes dry, ordinary, wet, and flexible grasses", () => {
+  const dry = PLANTS.find((plant) => plant.odmiana.includes("Pony Tails"));
+  const wet = PLANTS.find((plant) => plant.odmiana.includes("giganteus"));
+  const flexible = PLANTS.find((plant) => plant.odmiana.includes("Northwind"));
+  const dryPicks = recommendPlants(PLANTS, { moisture: "dry" });
+  const wetPicks = recommendPlants(PLANTS, { moisture: "wet" });
+
+  assert.equal(getPlantMoistureClass(dry), "dry");
+  assert.equal(getPlantMoistureClass(wet), "wet");
+  assert.equal(getPlantMoistureClass(flexible), "flexible");
+  assert.ok(dryPicks.some((plant) => plant.id === dry.id));
+  assert.ok(dryPicks.some((plant) => plant.id === flexible.id));
+  assert.ok(wetPicks.some((plant) => plant.id === wet.id));
+  assert.ok(wetPicks.some((plant) => plant.id === flexible.id));
+  assert.ok(!wetPicks.some((plant) => plant.id === dry.id));
 });
 
 test("planting quantities scale the catalog density to the requested area", () => {
