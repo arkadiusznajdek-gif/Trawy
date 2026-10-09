@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { AlertTriangle, Shield, Download, Upload, X, Copy, ClipboardPaste, Search, Sprout, Plus } from "lucide-react";
 import { MONTHS } from "../../constants";
-import { money, monthKey, taskKey, computeMonthlySales } from "../../utils/helpers";
-import { buildMonthTasks } from "../harmonogram/helpers";
 import { TasksSection } from "./TasksSection";
 import { plantName, batchLabel, sourceLabel } from "../magazyn/PartiePanel";
 import { daysSince } from "../magazyn/ZaleglosciPanel";
@@ -188,7 +186,7 @@ function BackupModal({ onClose, getBackupText, onImportText }) {
   );
 }
 
-export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesValue, orders, zestawy, done, customTasks, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
+export function PulpitTab({ plants, inventory, orders, zestawy, supplies, tasks, onAddTask, onCycleTask, onDeleteTask, onNavigate, onExport, onImport, onGetBackupText, onImportText, batches, onJumpToBatch, batchSegments, productionPlans }) {
   const [backupOpen, setBackupOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchResults = searchBatches(batches || [], plants, searchQuery);
@@ -196,16 +194,6 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
   const attentionTotal = attention.plansDue.length + attention.staleSegments.length + attention.lowSupplies.length + attention.pendingOrders.length + attention.orderShortages.length;
   const now = new Date();
   const curMonth = now.getMonth() + 1;
-  const curYear = now.getFullYear();
-
-  const monthTasks = buildMonthTasks(plants, curMonth);
-  const doneCount = monthTasks.filter((t) => done[taskKey(curYear, curMonth, t.plant.id, t.type)]).length;
-  const custom = customTasks[monthKey(curYear, curMonth)] || [];
-  const customDoneCount = custom.filter((t) => t.done).length;
-  const pendingCount = (monthTasks.length - doneCount) + (custom.length - customDoneCount);
-
-  const sales = computeMonthlySales(orders);
-  const thisMonthSales = sales.find((s) => s.year === curYear && s.month === curMonth) || { count: 0, sum: 0, countDone: 0, sumDone: 0 };
   const lowSupplies = supplies.filter((s) => s.prog != null && s.prog !== "" && Number(s.ilosc) <= Number(s.prog));
   const seasonalTips = SEASONAL_TIPS[curMonth] || [];
 
@@ -282,40 +270,6 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
           </div>
         </div>
       )}
-
-      <div className="dash-grid">
-        <button className="dash-card" onClick={() => onNavigate("harmonogram")}>
-          <span className="dash-num">{pendingCount}</span>
-          <span className="dash-label">zadań do zrobienia w {MONTHS[curMonth].toLowerCase()}</span>
-        </button>
-        <button className="dash-card" onClick={() => onNavigate("sprzedaz")}>
-          <span className="dash-num">{money(thisMonthSales.sumDone)} zł</span>
-          <span className="dash-label">sprzedaż zrealizowana w {MONTHS[curMonth].toLowerCase()}</span>
-        </button>
-        <button className="dash-card" onClick={() => onNavigate("magazyn")}>
-          <span className="dash-num">{potsTotal}</span>
-          <span className="dash-label">roślin w donicach łącznie</span>
-        </button>
-        <button className="dash-card" onClick={() => onNavigate("magazyn")}>
-          <span className="dash-num">{lowSupplies.length}</span>
-          <span className="dash-label">materiałów na wyczerpaniu</span>
-        </button>
-        <button className="dash-card dash-card-wide dash-card-split" onClick={() => onNavigate("sprzedaz")}>
-          <div className="dash-split-item">
-            <span className="dash-num-sm">{money(magazynValue)} zł</span>
-            <span className="dash-label">koszt zakupu (magazyn)</span>
-          </div>
-          <div className="dash-split-item">
-            <span className="dash-num-sm">{money(salesValue)} zł</span>
-            <span className="dash-label">potencjalna wartość sprzedaży</span>
-          </div>
-          <div className="dash-split-item">
-            <span className="dash-num-sm">{money(salesValue - magazynValue)} zł</span>
-            <span className="dash-label">potencjalny zysk</span>
-          </div>
-        </button>
-      </div>
-      <p className="hint-text" style={{ marginTop: -6 }}>Wartość kosztu magazynu korzysta z kosztów zapisanych przy zakupach i operacjach. Koszt/szt. w Cenniku jest liczony osobno z Receptury i nie uwzględnia kosztu rośliny-matecznej.</p>
 
       <section className="order-card seasonal-card">
         <div className="order-card-body">

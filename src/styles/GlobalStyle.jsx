@@ -210,14 +210,6 @@ export function GlobalStyle() {
       .stat-box { flex: 1; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
       .stat-label { font-size: 10.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.02em; }
       .stat-value { font-size: 17px; font-weight: 700; color: var(--brand-dark); font-family: 'Fraunces', serif; }
-      .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-      .dash-card-wide { grid-column: 1 / -1; }
-      .dash-card-split { flex-direction: row; justify-content: space-between; gap: 6px; }
-      .dash-split-item { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-      .dash-num-sm { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--brand); white-space: nowrap; }
-      .dash-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
-      .dash-num { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--brand); }
-      .dash-label { font-size: 11px; color: var(--ink-muted); line-height: 1.25; }
       .alert-box { display: flex; align-items: center; gap: 8px; background: var(--rust-soft); color: var(--rust); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; margin-bottom: 14px; }
       .log-list { display: flex; flex-direction: column; gap: 2px; }
       .log-row { display: flex; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--line); font-size: 12.5px; }

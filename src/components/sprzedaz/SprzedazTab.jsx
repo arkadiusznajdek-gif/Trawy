@@ -29,7 +29,7 @@ export function SprzedazTab({ plants, inventory, potSizes, plantContainerSizes, 
           onDeleteOrder={onDeleteOrder} onFulfillOrder={onFulfillOrder} zestawy={zestawy} clients={clients} batches={batches} batchSegments={batchSegments} />
       )}
       {sub === "klienci" && <KlienciPanel clients={clients} orders={orders} onAdd={onAddClient} onDelete={onDeleteClient} />}
-      {sub === "raporty" && <RaportyPanel orders={orders} zestawy={zestawy} costs={costs} overheadCosts={overheadCosts} plants={plants} batchSegments={batchSegments} />}
+      {sub === "raporty" && <RaportyPanel orders={orders} zestawy={zestawy} costs={costs} overheadCosts={overheadCosts} plants={plants} batchSegments={batchSegments} inventory={inventory} cennik={cennik} />}
     </div>
   );
 }

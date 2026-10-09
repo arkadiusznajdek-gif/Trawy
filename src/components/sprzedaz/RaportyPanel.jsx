@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight, ChevronLeft, TrendingUp, TrendingDown } from
 import { MONTHS } from "../../constants";
 import { money, computeYearlyProfitReport, computeTopVarietiesByProfit } from "../../utils/helpers";
 
-export function RaportyPanel({ orders, zestawy, costs, overheadCosts, plants, batchSegments }) {
+export function RaportyPanel({ orders, zestawy, costs, overheadCosts, plants, batchSegments, inventory, cennik }) {
   const yearsInData = useMemo(() => {
     const ys = new Set([new Date().getFullYear()]);
     orders.forEach((o) => { const y = Number((o.data || "").split("-")[0]); if (y) ys.add(y); });
@@ -17,6 +17,18 @@ export function RaportyPanel({ orders, zestawy, costs, overheadCosts, plants, ba
     [orders, zestawy, costs, overheadCosts, year, batchSegments]
   );
   const topVarieties = useMemo(() => computeTopVarietiesByProfit(orders, zestawy, costs, year, 5, batchSegments), [orders, zestawy, costs, year, batchSegments]);
+  const inventoryValue = useMemo(() => {
+    let cost = 0;
+    let retail = 0;
+    Object.entries(inventory).forEach(([plantId, row]) => {
+      Object.entries(row || {}).forEach(([container, qty]) => {
+        const quantity = Number(qty || 0);
+        cost += quantity * Number(costs[plantId]?.[container] || 0);
+        retail += quantity * Number(cennik[plantId]?.[container] || 0);
+      });
+    });
+    return { cost, retail };
+  }, [inventory, costs, cennik]);
 
   const pending = useMemo(
     () => orders.filter((o) => o.status !== "zrealizowane"),
@@ -40,6 +52,23 @@ export function RaportyPanel({ orders, zestawy, costs, overheadCosts, plants, ba
         <span className="year-label">{year}</span>
         <button className="icon-btn" disabled={!canNext} onClick={() => setYear(yearsInData[yearIdx - 1])}><ChevronRight size={18} /></button>
       </div>
+
+      <div className="section-title" style={{ marginTop: 8 }}>Szacunkowa wartość obecnego zapasu</div>
+      <div className="stat-row" style={{ marginBottom: 8 }}>
+        <div className="stat-box">
+          <span className="stat-label">Koszt zapisany w magazynie</span>
+          <span className="stat-value">{money(inventoryValue.cost)} zł</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Wartość wg cennika</span>
+          <span className="stat-value">{money(inventoryValue.retail)} zł</span>
+        </div>
+      </div>
+      <div className={`stat-box ${inventoryValue.retail - inventoryValue.cost < 0 ? "stat-neg" : "stat-pos"}`} style={{ marginBottom: 8 }}>
+        <span className="stat-label">Szacunkowa różnica przed kosztami stałymi</span>
+        <span className="stat-value">{money(inventoryValue.retail - inventoryValue.cost)} zł</span>
+      </div>
+      <p className="hint-text">To orientacyjna wycena niesprzedanych roślin według kosztów zapisanych przy zakupach i operacjach oraz aktualnych cen w Cenniku — nie jest to zrealizowany zysk.</p>
 
       <div className="stat-row" style={{ marginBottom: 8 }}>
         <div className="stat-box">

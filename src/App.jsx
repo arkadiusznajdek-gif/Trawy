@@ -255,24 +255,6 @@ export default function App() {
     return t;
   }, [inventory, containers]);
   const potsTotal = useMemo(() => potSizes.reduce((s, c) => s + Number(totals[c] || 0), 0), [totals, potSizes]);
-  const magazynValue = useMemo(() => {
-    let v = 0;
-    Object.entries(inventory).forEach(([plantId, row]) => {
-      Object.entries(row || {}).forEach(([container, qty]) => {
-        v += Number(qty || 0) * Number(costs[plantId]?.[container] || 0);
-      });
-    });
-    return v;
-  }, [inventory, costs]);
-  const salesValue = useMemo(() => {
-    let v = 0;
-    Object.entries(inventory).forEach(([plantId, row]) => {
-      Object.entries(row || {}).forEach(([container, qty]) => {
-        v += Number(qty || 0) * Number(cennik[plantId]?.[container] || 0);
-      });
-    });
-    return v;
-  }, [inventory, cennik]);
 
   function addPotSize(name) {
     const trimmed = (name || "").trim();
@@ -1342,8 +1324,7 @@ export default function App() {
           <div className="loading">Wczytywanie danych…</div>
         ) : tab === "pulpit" ? (
           <PulpitTab
-            plants={allPlants} inventory={inventory} potsTotal={potsTotal} magazynValue={magazynValue} salesValue={salesValue} orders={orders} zestawy={zestawy}
-            done={done} customTasks={customTasks} supplies={supplies}
+            plants={allPlants} inventory={inventory} orders={orders} zestawy={zestawy} supplies={supplies}
             tasks={tasks} onAddTask={addTask} onCycleTask={cycleTaskStatus} onDeleteTask={deleteTask}
             onNavigate={setTab} onExport={handleExport} onImport={handleImport}
             onGetBackupText={buildBackupJson} onImportText={applyImportText}
