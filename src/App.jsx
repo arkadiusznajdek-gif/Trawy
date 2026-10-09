@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { AlertCircle } from "lucide-react";
 
 import { PLANTS } from "./data/plants";
-import { DEFAULT_SUPPLIES, DEFAULT_POT_SIZES, DEFAULT_TENANT_ID } from "./constants";
+import { DEFAULT_SUPPLIES, DEFAULT_POT_SIZES, DEFAULT_TENANT_ID, DEFAULT_LABEL_SETTINGS } from "./constants";
 import { uid, clampInt, money, containerLabel, costOfContainer, findSupplyByContainer, findSubstrateSupply, monthsToRomanText, deriveContainerSizes, migrateSupplies } from "./utils/helpers";
 import { loadKey, saveKey, deleteKey, listPhotoKeys, useDebouncedSave, tenantKey } from "./utils/storage";
 import { createBatch, createSegment, divideSegment, transplantSegment, recordSegmentLoss, recordSegmentRemoval, recordSegmentInventoryCorrection, recordSegmentSale, setSegmentQuality } from "./utils/batches";
@@ -33,7 +33,7 @@ const KNOWN_IMPORT_KEYS = [
   "photos", "custom-plants", "clients", "losses", "log", "supplies", "pot-sizes",
   "plant-container-sizes", "pot-recipes", "substrate-cost-per-l", "koszty", "tasks-general",
   "overhead-costs", "batches", "batch-segments", "production-plans", "batch-photos",
-  "piorin-number", "origin-country", "thermal-label-size",
+  "piorin-number", "origin-country", "thermal-label-size", "label-settings",
 ];
 
 export default function App() {
@@ -62,6 +62,7 @@ export default function App() {
   const [piorinNumber, setPiorinNumber] = useState("");
   const [originCountry, setOriginCountry] = useState("PL");
   const [thermalLabelSize, setThermalLabelSize] = useState({ width: 40, height: 30 });
+  const [labelSettings, setLabelSettings] = useState(DEFAULT_LABEL_SETTINGS);
   const [costs, setCosts] = useState({});
   const [toast, setToast] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -113,6 +114,11 @@ export default function App() {
       setPiorinNumber(config.piorinNumber || "");
       setOriginCountry(config.originCountry || "PL");
       setThermalLabelSize(config.thermalLabelSize || { width: 40, height: 30 });
+      setLabelSettings({
+        ...DEFAULT_LABEL_SETTINGS,
+        ...(config.labelSettings || {}),
+        labelFields: { ...DEFAULT_LABEL_SETTINGS.labelFields, ...(config.labelSettings?.labelFields || {}) },
+      });
 
       setDone(activity.done || {});
       setCustomTasks(activity.customTasks || {});
@@ -144,20 +150,20 @@ export default function App() {
 
   const coreData = useMemo(() => ({ inventory, cennik, orders, zestawy, costs }), [inventory, cennik, orders, zestawy, costs]);
   const configData = useMemo(
-    () => ({ potSizes, plantContainerSizes, potRecipes, substrateCostPerL, supplies, customPlants, clients, piorinNumber, originCountry, thermalLabelSize }),
-    [potSizes, plantContainerSizes, potRecipes, substrateCostPerL, supplies, customPlants, clients, piorinNumber, originCountry, thermalLabelSize]
+    () => ({ potSizes, plantContainerSizes, potRecipes, substrateCostPerL, supplies, customPlants, clients, piorinNumber, originCountry, thermalLabelSize, labelSettings }),
+    [potSizes, plantContainerSizes, potRecipes, substrateCostPerL, supplies, customPlants, clients, piorinNumber, originCountry, thermalLabelSize, labelSettings]
   );
   const activityData = useMemo(() => ({ done, customTasks, losses, log, tasks, overheadCosts, productionPlans, batchPhotos }), [done, customTasks, losses, log, tasks, overheadCosts, productionPlans, batchPhotos]);
   const undoableSnapshot = useMemo(
     () => ({
       inventory, cennik, orders, done, customTasks, zestawy, customPlants, clients, losses, log,
       supplies, plantContainerSizes, potRecipes, substrateCostPerL, piorinNumber, originCountry,
-      thermalLabelSize, costs, tasks, overheadCosts, productionPlans, batchPhotos, batches, batchSegments,
+      thermalLabelSize, labelSettings, costs, tasks, overheadCosts, productionPlans, batchPhotos, batches, batchSegments,
     }),
     [
       inventory, cennik, orders, done, customTasks, zestawy, customPlants, clients, losses, log,
       supplies, plantContainerSizes, potRecipes, substrateCostPerL, piorinNumber, originCountry,
-      thermalLabelSize, costs, tasks, overheadCosts, productionPlans, batchPhotos, batches, batchSegments,
+      thermalLabelSize, labelSettings, costs, tasks, overheadCosts, productionPlans, batchPhotos, batches, batchSegments,
     ]
   );
 
@@ -1187,6 +1193,7 @@ export default function App() {
       "production-plans": productionPlans,
       "batch-photos": batchPhotos,
       "piorin-number": piorinNumber, "origin-country": originCountry, "thermal-label-size": thermalLabelSize,
+      "label-settings": labelSettings,
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(payload, null, 2);
@@ -1252,6 +1259,13 @@ export default function App() {
       if (data["piorin-number"] !== undefined) setPiorinNumber(data["piorin-number"]);
       if (data["origin-country"]) setOriginCountry(data["origin-country"]);
       if (data["thermal-label-size"]) setThermalLabelSize(data["thermal-label-size"]);
+      if (data["label-settings"]) {
+        setLabelSettings({
+          ...DEFAULT_LABEL_SETTINGS,
+          ...data["label-settings"],
+          labelFields: { ...DEFAULT_LABEL_SETTINGS.labelFields, ...(data["label-settings"].labelFields || {}) },
+        });
+      }
       // batches i batch-segments to jedna logiczna całość (segmenty odwołują się do
       // batchId, partie z podziału/korekty do parentBatchId/parentSegmentId) — importowane
       // razem, tylko gdy OBA pola są obecne w kopii, żeby nie zostawić połowicznego stanu
@@ -1307,6 +1321,7 @@ export default function App() {
     setPiorinNumber(snapshot.piorinNumber);
     setOriginCountry(snapshot.originCountry);
     setThermalLabelSize(snapshot.thermalLabelSize);
+    setLabelSettings(snapshot.labelSettings);
     setCosts(snapshot.costs);
     setTasks(snapshot.tasks);
     setOverheadCosts(snapshot.overheadCosts);
@@ -1380,7 +1395,8 @@ export default function App() {
           <EtykietyTab plants={allPlants} inventory={inventory} potSizes={potSizes} batchSegments={batchSegments} batches={batches}
             piorinNumber={piorinNumber} setPiorinNumber={setPiorinNumber}
             originCountry={originCountry} setOriginCountry={setOriginCountry}
-            thermalLabelSize={thermalLabelSize} setThermalLabelSize={setThermalLabelSize} />
+            thermalLabelSize={thermalLabelSize} setThermalLabelSize={setThermalLabelSize}
+            labelSettings={labelSettings} setLabelSettings={setLabelSettings} />
         )}
       </main>
       <BottomNav tab={tab} setTab={setTab} />

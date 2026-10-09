@@ -265,12 +265,37 @@ export function GlobalStyle() {
       .toast.success { background: var(--brand); }
       .print-area { display: none; }
       .label-preview-card {
-        border: 1px dashed #999; border-radius: 8px; padding: 12px 14px; background: var(--surface);
-        max-width: 220px; font-family: 'Inter', sans-serif;
+        border: 1px dashed #999; border-radius: 8px; padding: 10px; background: var(--surface-2);
+        width: fit-content; max-width: 100%; font-family: 'Inter', sans-serif; overflow: auto;
       }
+      .label-preview-card .print-label { border: 0; min-height: 0; padding: 0; width: auto; height: auto; }
+      .label-field-options { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; }
+      .label-field-options .checkbox-field { margin: 0; }
+      .label-note-input { margin-top: 8px; }
       .lp-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 15px; color: #1F331C; }
       .lp-variety { font-style: italic; font-size: 12px; color: #333; margin-bottom: 6px; }
       .lp-row { font-size: 10.5px; margin-top: 3px; color: #222; }
+      .print-label { font-family: 'Inter', sans-serif; }
+      .pl-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 13px; color: #1F331C; }
+      .pl-variety { font-style: italic; font-size: 10.5px; color: #333; margin-bottom: 4px; }
+      .pl-row { font-size: 8.5px; margin-top: 2px; color: #222; }
+      .passport-header { display: flex; justify-content: space-between; align-items: center; gap: 4px; margin-bottom: 3px; }
+      .passport-flag { flex-shrink: 0; background: #003399; color: #FFCC00; font-weight: 700; font-size: 7px; padding: 1px 4px; border-radius: 2px; letter-spacing: 0.5px; }
+      .passport-title { font-size: 7px; font-weight: 700; text-align: right; }
+      .passport-content { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+      .passport-fields { min-width: 0; flex: 1; }
+      .passport-row { font-size: 8px; margin-top: 1.5px; overflow-wrap: anywhere; }
+      .passport-letter { font-weight: 700; margin-right: 3px; }
+      .passport-qr { flex: 0 0 auto; line-height: 0; }
+      .passport-qr svg { display: block; width: 18mm; height: 18mm; max-width: 25vw; max-height: 25vw; }
+      .passport-note { margin-top: 2px; font-size: 7px; overflow-wrap: anywhere; }
+      .thermal-label .pl-name { font-size: 9px; }
+      .thermal-label .pl-variety { font-size: 7.5px; margin-bottom: 2px; }
+      .thermal-label .pl-row { font-size: 6.5px; margin-top: 1px; }
+      .thermal-label .passport-qr svg { width: 14mm; height: 14mm; max-width: none; max-height: none; }
+      .thermal-label .passport-row { font-size: 6.5px; }
+      .thermal-label .passport-title, .thermal-label .passport-flag { font-size: 6px; }
+      .thermal-label .passport-note { font-size: 6px; }
       @media print { .label-preview-section { display: none !important; } }
       @media print {
         .app-header, .bottom-nav, .toast, .tab-pad > *:not(.print-area) { display: none !important; }
@@ -278,23 +303,9 @@ export function GlobalStyle() {
         .print-area { display: block; }
         .print-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
         .print-label { border: 1px dashed #999; padding: 10px 12px; min-height: 3.4cm; break-inside: avoid; font-family: 'Inter', sans-serif; }
-        .pl-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 13px; color: #1F331C; }
-        .pl-variety { font-style: italic; font-size: 10.5px; color: #333; margin-bottom: 4px; }
-        .pl-row { font-size: 8.5px; margin-top: 2px; color: #222; }
-
         /* Drukarka termiczna (etykiety pojedyncze, rozmiar z ustawień) — patrz FUNKCJA DODATKOWA w EtykietyTab.jsx */
         .print-area.thermal .print-grid { grid-template-columns: 1fr; }
         .print-area.thermal .print-label { border: none; min-height: 0; padding: 2mm; page: thermal; break-after: page; }
-        .print-area.thermal .pl-name { font-size: 9px; }
-        .print-area.thermal .pl-variety { font-size: 7.5px; margin-bottom: 2px; }
-        .print-area.thermal .pl-row { font-size: 6.5px; margin-top: 1px; }
-
-        /* Paszport roślin UE (Rozporządzenie 2016/2031 / 2017/2313) — pola A/B/C/D */
-        .passport-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-        .passport-flag { background: #003399; color: #FFCC00; font-weight: 700; font-size: 7px; padding: 1px 4px; border-radius: 2px; letter-spacing: 0.5px; }
-        .passport-title { font-size: 7px; font-weight: 700; text-align: right; }
-        .passport-row { font-size: 8px; margin-top: 1.5px; }
-        .passport-letter { font-weight: 700; margin-right: 3px; }
       }
     `}</style>
   );

@@ -1,6 +1,22 @@
 export const MONTHS = ["", "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
 export const ROMAN_BY_MONTH = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 export const DEFAULT_POT_SIZES = ["P9", "C3", "C5"];
+export const DEFAULT_LABEL_SETTINGS = {
+  labelFields: {
+    commonName: true,
+    botanicalName: true,
+    dimensions: true,
+    exposure: true,
+    bloom: true,
+    evergreen: true,
+    container: true,
+    location: true,
+    batch: true,
+  },
+  labelNote: "",
+  passportQr: true,
+  passportNote: "",
+};
 export const LOCATION_PRESETS = ["Matecznik A", "Matecznik B", "Tunel A", "Tunel B", "Kontenerownia A", "Kontenerownia B"];
 export const PHOTO_MAX_W = 380;
 export const PHOTO_QUALITY = 0.55;
