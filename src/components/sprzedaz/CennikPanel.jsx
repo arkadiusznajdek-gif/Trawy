@@ -36,7 +36,7 @@ export function buildCennikCsv(plants, potSizes, plantContainerSizes, cennik) {
   return rows.map((r) => r.map(csvCell).join(";")).join("\r\n");
 }
 
-export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, setCennik, costs, potRecipes, substrateCostPerL, onSetCost }) {
+export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, setCennik, potRecipes, substrateCostPerL }) {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState(null);
   const filtered = plants.filter((p) => {
@@ -77,7 +77,6 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
       <div className="price-list">
         {filtered.map((p) => {
           const row = cennik[p.id] || {};
-          const costRow = costs[p.id] || {};
           const isOpen = openId === p.id;
           return (
             <div key={p.id} className="price-card">
@@ -103,10 +102,7 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
                 <div className="cost-margin-body">
                   {resolvePotContainers(plantContainerSizes, potSizes, p.id).map((c) => {
                     const cena = Number(row[c] || 0);
-                    const hasRecordedCost = Object.prototype.hasOwnProperty.call(costRow, c) && costRow[c] != null;
-                    const koszt = hasRecordedCost
-                      ? Number(costRow[c] || 0)
-                      : costOfContainer(potRecipes, substrateCostPerL, c);
+                    const koszt = costOfContainer(potRecipes, substrateCostPerL, c);
                     const marza = cena - koszt;
                     const marzaPct = cena > 0 ? (marza / cena) * 100 : 0;
                     return (
@@ -115,18 +111,15 @@ export function CennikPanel({ plants, potSizes, plantContainerSizes, cennik, set
                         <label className="price-field">
                           <span>Koszt/szt.</span>
                           <div className="price-input-wrap small">
-                            <NumberInput inputMode="decimal" min="0" step="0.01" value={Math.round(koszt * 100) / 100} onChange={(e) => onSetCost(p.id, c, e.target.value)} />
+                            <span className="computed-cost">{money(koszt)}</span>
                             <span className="pln">zł</span>
                           </div>
                         </label>
-                        {!hasRecordedCost && potRecipes[c] && (
-                          <span className="hint-text">Z receptury</span>
-                        )}
                         <span className={`margin-badge ${marza < 0 ? "neg" : ""}`}>Marża: {money(marza)} zł ({marzaPct.toFixed(0)}%)</span>
                       </div>
                     );
                   })}
-                  <p className="hint-text" style={{ margin: "6px 0 0" }}>Jeśli brak kosztu zakupu lub produkcji, koszt/szt. bierze się z Receptury. Koszt znanych sztuk ma pierwszeństwo; możesz go też wpisać ręcznie.</p>
+                  <p className="hint-text" style={{ margin: "6px 0 0" }}>Koszt/szt. jest dokładnie z Receptury pojemnika i nie obejmuje kosztu rośliny-matecznej.</p>
                 </div>
               )}
             </div>

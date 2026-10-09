@@ -307,10 +307,6 @@ export default function App() {
     }));
   }
   function deleteTask(id) { setTasks((prev) => prev.filter((t) => t.id !== id)); }
-  function setCost(plantId, container, val) {
-    const n = Math.max(0, Number(val) || 0);
-    setCosts((prev) => ({ ...prev, [plantId]: { ...(prev[plantId] || {}), [container]: n } }));
-  }
   /*
    * ETAP 5: Centrum produkcji / podział i rozmnażanie.
    * Walidacja odbywa się CAŁA przed jakąkolwiek mutacją stanu (inventory/
@@ -1372,7 +1368,7 @@ export default function App() {
           <SprzedazTab
             plants={allPlants} potSizes={potSizes} plantContainerSizes={plantContainerSizes}
             cennik={cennik} setCennik={setCennik} costs={costs} potRecipes={potRecipes}
-            substrateCostPerL={substrateCostPerL} onSetCost={setCost}
+            substrateCostPerL={substrateCostPerL}
             orders={orders} onCreateOrder={createOrder} onDeleteOrder={deleteOrderH} onFulfillOrder={fulfillOrderH}
             zestawy={zestawy} setZestawy={setZestawy}
             clients={clients} onAddClient={addClient} onDeleteClient={deleteClient}

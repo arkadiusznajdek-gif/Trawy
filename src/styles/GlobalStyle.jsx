@@ -127,6 +127,7 @@ export function GlobalStyle() {
       .price-input-wrap.small { flex: 1; }
       .price-input-wrap input { border: none; outline: none; background: none; width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink); }
       .price-input-wrap .pln { font-size: 11px; color: var(--ink-muted); }
+      .price-input-wrap .computed-cost { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink); }
       .price-warning { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--rust); margin-top: 2px; }
       .primary-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--brand); color: white; border: none; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; }
       .primary-btn:disabled { opacity: 0.45; }

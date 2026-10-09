@@ -242,7 +242,7 @@ export function PulpitTab({ plants, inventory, potsTotal, magazynValue, salesVal
           </div>
         </button>
       </div>
-      <p className="hint-text" style={{ marginTop: -6 }}>Koszt i zysk liczą się tylko tam, gdzie masz wpisany koszt/szt. w Cenniku — brakujące pozycje liczą się jako 0 zł.</p>
+      <p className="hint-text" style={{ marginTop: -6 }}>Wartość kosztu magazynu korzysta z kosztów zapisanych przy zakupach i operacjach. Koszt/szt. w Cenniku jest liczony osobno z Receptury i nie uwzględnia kosztu rośliny-matecznej.</p>
 
       {lowSupplies.length > 0 && (
         <div className="alert-box">
